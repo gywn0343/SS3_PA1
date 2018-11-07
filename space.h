@@ -45,8 +45,9 @@ void print_seat()
 	{
 		for(j=0;j<50;j++)
 		{
-			cout << seat[i][j][0];
-			cout << mem[i][j];
+			if(seat[i][j][0] == -1) continue;
+			cout << seat[i][j][0] << "~" << seat[i][j][1] << "(" << seat[i][j][2] << "): ";
+			cout << mem[i][j] << endl;
 		}
 		cout << endl;
 	}
@@ -117,7 +118,7 @@ void print_seat()
 		}
 		void final_state(string state, string name, int floor, int start, int last)
 		{
-			int i;
+			int i, j;
 			int loc;
 			for(i=0;i<50;i++)
 			{
@@ -127,19 +128,41 @@ void print_seat()
 					break;
 				}
 			}
-cout << floor << ", " << loc << endl;
+//cout << floor << ", " << loc << endl;
 			if(state == "B")
 			{
 				seat[floor][loc][0] = start;
-				seat[floor][loc][1] = last;
+				seat[floor][loc][1] = start + last;
 				mem[floor][loc] = name;
 				seat_cnt[floor]++;
-print_seat();
 			}
 			else if(state == "E")
 			{
-				seat[floor][loc][2] = start;
+				for(i=1;i<=3;i++)
+				{
+					for(j=0;j<50;j++)
+					{
+						if(mem[i][j] == name)
+						{
+							seat[i][j][2] = start;
+						}
+					}
+				}
 			}
+			else if(state == "R")
+			{
+				for(i=1;i<=3;i++)
+				{
+					for(j=0;j<50;j++)
+					{
+						if(mem[i][j] == name)
+						{
+							seat[i][j][2] = -1;
+						}
+					}
+				}
+			}
+//print_seat();
 		}
 		bool isUsing(string name)
 		{
@@ -175,20 +198,19 @@ print_seat();
 		{
 			if(prev_date == "" || comp(date, prev_date) > 0) 
 			{
-cout << "!!" << endl;
+//cout << "!!" << endl;
 				flush_date(date);
 			}
 			else flush_time(start_time);
-print_seat();
+//print_seat();
 			if(state == "E") return 0;
+			if(state == "R") return 0;
 
 			int index;
 			if(mem_type == "Undergraduate")
 			{
 				index = 0;
 			}
-			if(last_time > max_time[index]) return 12; // time limit exceeded
-			if(num_of_mem > 1) return 11;     // member limit exceeded
 			if(floor <= 0 || floor > 3) return 8; // invalid floor
 			if(isOpen(start_time, time[floor]) == 0) 
 			{
@@ -197,6 +219,8 @@ print_seat();
 				return 9;
 			}
 			if(isUsing(name)) return 10;
+			if(num_of_mem > 1) return 11;     // member limit exceeded
+			if(last_time > max_time[index]) return 12; // time limit exceeded
 			if(isFull(floor, ret_time[0])) return 13;
 
 			return 0;
@@ -245,8 +269,9 @@ class StudyRoom : public Space{
 			int i;
 			for(i=1;i<=10;i++)
 			{
-				if(room[i][1] < now) 
+				if(room[i][1] < now)
 				{
+					if(room[i][1] == -1) continue;
 					room[i][0] = -1;
 					room[i][1] = -1;
 					room_cnt--;
@@ -256,7 +281,7 @@ class StudyRoom : public Space{
 		void final_state(string name, int id, int start, int last)
 		{
 			room[id][0] = start;
-			room[id][1] = last;
+			room[id][1] = start + last;
 			room_cnt++;
 			mem[id] = name;
 		}
@@ -269,19 +294,13 @@ class StudyRoom : public Space{
 			}
 			return false;
 		}
-		bool isFull(int &fastest_time)
+		bool isFull(int id, int &fastest_time)
 		{
 			int i;
 			int min = 25;
-			if(room_cnt == 10)
+			if(room[id][0] != -1)
 			{
-				for(i=1;i<=10;i++)
-				{
-					if(min > room[i][1])
-					{
-						min = room[i][1];
-					}
-				}
+				fastest_time = room[id][1];
 				return true;
 			}
 			return false;
@@ -290,8 +309,6 @@ class StudyRoom : public Space{
 		{
 			if(prev_date == "" || comp(date, prev_date) > 0) flush_date(date);
 			else flush_time(start_time);
-			if(last_time > 3) return 12;
-			if(num_of_mem > 6) return 11;
 			if(id <= 0 || id > 10) return 8;  // invalid space id
 			if(isOpen(start_time, time) == 0)
 			{
@@ -300,7 +317,9 @@ class StudyRoom : public Space{
 				return 9;
 			}
 			if(isUsing(name)) return 10;
-			if(isFull(ret_time[0])) return 13;
+			if(num_of_mem > 6) return 11;
+			if(last_time > 3) return 12;
+			if(isFull(id, ret_time[0])) return 13;
 
 			return 0;
 
