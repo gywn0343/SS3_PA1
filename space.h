@@ -94,8 +94,18 @@ void print_seat()
 			{
 				for(j=0;j<50;j++)
 				{
-					if(seat[i][j][1] <= now || seat[i][j][2] <= now)  // expired
+					if(seat[i][j][1] <= now)  
 					{
+						if(seat[i][j][1] == -1) continue;
+						seat[i][j][0] = -1;
+						seat[i][j][1] = -1;
+						seat[i][j][2] = -1;
+						mem[i][j] = "";
+						seat_cnt[i]--;
+					}
+					else if(seat[i][j][2] <= now)
+					{
+						if(seat[i][j][2] == -1) continue;
 						seat[i][j][0] = -1;
 						seat[i][j][1] = -1;
 						seat[i][j][2] = -1;
@@ -163,7 +173,11 @@ print_seat();
 		}
 		int do_op(string date, int start_time, int floor, string state, string name, int num_of_mem, int last_time, string mem_type, int ret_time[2])
 		{
-			if(prev_date == "" || comp(date, prev_date) > 0) flush_date(date);
+			if(prev_date == "" || comp(date, prev_date) > 0) 
+			{
+cout << "!!" << endl;
+				flush_date(date);
+			}
 			else flush_time(start_time);
 print_seat();
 			if(state == "E") return 0;
