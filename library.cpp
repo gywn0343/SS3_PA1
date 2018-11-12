@@ -33,38 +33,40 @@ void Library::print_result(int n, int num1, int num2, string date)
 		switch(n)
 		{
 			case 0:
-				cout/*outFile*/ << result[0] << endl; return;
+				outFile << result[0] << endl; return;
 			case 1:
-				cout/*outFile*/ << result[1] << endl; return;
+				outFile << result[1] << endl; return;
 			case 2:
-				cout/*outFile*/ << result[2] << num1 << endl; return;
+				outFile << result[2] << num1 << endl; return;
 			case 3:
-				cout/*outFile*/ << result[3] << endl; return;
+				outFile << result[3] << endl; return;
 			case 4:
-				cout/*outFile*/ << result[4] << date << endl; return;
+				outFile << result[4] << date << endl; return;
 			case 5:
-				cout/*outFile*/ << result[5] << date << endl; return;
+				outFile << result[5] << date << endl; return;
 			case 6:
-				cout/*outFile*/ << result[6] << date << endl; return;
+				outFile << result[6] << date << endl; return;
 			case 7:
-				cout/*outFile*/ << result[7] << date << endl; return;
+				outFile << result[7] << date << endl; return;
 			case 8:
-				cout/*outFile*/ << result[8] << endl; return;
+				outFile << result[8] << endl; return;
 			case 9:
-				cout/*outFile*/ << result[9];
-				if(num1 < 10) cout/*outFile*/ << "0";
- 				cout/*outFile*/ << num1 << " to "; 
-				if(num2 < 10) cout/*outFile*/ << "0";
-				cout/*outFile*/ << num2 << "." << endl; 
+				outFile << result[9];
+				if(num1 < 10) outFile << "0";
+ 				outFile << num1 << " to "; 
+				if(num2 < 10) outFile << "0";
+				outFile << num2 << "." << endl; 
 				return;
-			case 10: 
-				cout/*outFile*/ << result[10] << endl; return;
-			case 11:
-				cout/*outFile*/ << result[11] << endl; return;
+			case 10:
+				outFile << result[10] << endl; return;
+			case 11: 
+				outFile << result[11] << endl; return;
 			case 12:
-				cout/*outFile*/ << result[12] << endl; return;
+				outFile << result[12] << endl; return;
 			case 13:
-				cout/*outFile*/ << result[13] << num1 << "." << endl; return;
+				outFile << result[13] << endl; return;
+			case 14:
+				outFile << result[14] << num1 << "." << endl; return;
 		}
 		outFile.close();
 	}
@@ -84,7 +86,7 @@ void Library::do_space()
 	else if(space_type == "StudyRoom")
 	{
 		ret = SR.do_op(date.substr(0, 10), stoi(date.substr(11, 2)), space_num, state, member_name, member_num, time, ret_time);
-		if(ret == 0) SR.final_state(member_name, space_num, stoi(date.substr(11, 2)), time);
+		if(ret == 0) SR.final_state(state, member_name, space_num, stoi(date.substr(11, 2)), time);
 		print_result(ret, ret_time[0], ret_time[1], "");
 	}
 }
@@ -232,7 +234,7 @@ void Library::set_space_info(string in, int cnt)
 
 void Library::getInformation(string line, int op)
 {
-cout << line << endl;
+//cout << line << endl;
 	int i;
 	int s, e;
 	s = 0;
@@ -287,8 +289,8 @@ Library::Library()
 		}
 		resourceFile.close();
 	}
-	filePath1 = "input1.dat";
-	filePath2 = "input2.dat";
+	filePath1 = "input.dat";
+	filePath2 = "space.dat";
 	ifstream openFile1(filePath1.data());  // resource
 	ifstream openFile2(filePath2.data());  // space
 
