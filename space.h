@@ -149,7 +149,7 @@ void print_seat()
 					}
 				}
 			}
-			else if(state == "R")
+			else if(state == "C")
 			{
 				for(i=1;i<=3;i++)
 				{
@@ -158,9 +158,28 @@ void print_seat()
 						if(mem[i][j] == name)
 						{
 							seat[i][j][2] = -1;
+							break;
 						}
 					}
 				}
+			}
+			else
+			{
+				for(i=1;i<=3;i++)
+				{
+					for(j=0;j<50;j++)
+					{
+						if(mem[i][j] == name)
+						{
+							seat[i][j][0] = -1;
+							seat[i][j][1] = -1;
+							seat[i][j][2] = -1;
+							mem[i][j] = "";
+							seat_cnt[i]--;
+							break;
+						}
+					}
+				}		
 			}
 //print_seat();
 		}
@@ -198,13 +217,10 @@ void print_seat()
 		{
 			if(prev_date == "" || comp(date, prev_date) > 0) 
 			{
-//cout << "!!" << endl;
 				flush_date(date);
 			}
 			else flush_time(start_time);
 //print_seat();
-			if(state == "E") return 0;
-			if(state == "R") return 0;
 
 			int index;
 			if(mem_type == "Undergraduate")
@@ -218,10 +234,18 @@ void print_seat()
 				ret_time[1] = time[floor][1];
 				return 9;
 			}
-			if(isUsing(name)) return 10;
-			if(num_of_mem > 1) return 11;     // member limit exceeded
-			if(last_time > max_time[index]) return 12; // time limit exceeded
-			if(isFull(floor, ret_time[0])) return 13;
+			if(state == "R" || state == "E" || state == "C")
+			{
+				if(!isUsing(name)) 
+					return 10;
+			}
+			else if(state == "B")
+			{
+				if(isUsing(name)) return 11;
+			}
+			if(num_of_mem > 1) return 12;     // member limit exceeded
+			if(last_time > max_time[index]) return 13; // time limit exceeded
+			if(isFull(floor, ret_time[0])) return 14;
 
 			return 0;
 		}
@@ -278,12 +302,22 @@ class StudyRoom : public Space{
 				}
 			}
 		}
-		void final_state(string name, int id, int start, int last)
+		void final_state(string state, string name, int id, int start, int last)
 		{
-			room[id][0] = start;
-			room[id][1] = start + last;
-			room_cnt++;
-			mem[id] = name;
+			if(state == "B")
+			{
+				room[id][0] = start;
+				room[id][1] = start + last;
+				room_cnt++;
+				mem[id] = name;
+			}	
+			else if(state == "R")
+			{
+				room[id][0] = -1;
+				room[id][1] = -1;
+				room_cnt--;
+				mem[id] = "";
+			}
 		}
 		bool isUsing(string name)
 		{
@@ -316,10 +350,19 @@ class StudyRoom : public Space{
 				ret_time[1] = time[1];
 				return 9;
 			}
-			if(isUsing(name)) return 10;
-			if(num_of_mem > 6) return 11;
-			if(last_time > 3) return 12;
-			if(isFull(id, ret_time[0])) return 13;
+			if(state == "R" || state == "E" || state == "C")
+			{
+				if(!isUsing(name)) 
+					return 10;
+			}
+			else
+			{
+				if(isUsing(name)) 
+					return 11;
+			}
+			if(num_of_mem > 6) return 12;
+			if(last_time > 3) return 13;
+			if(isFull(id, ret_time[0])) return 14;
 
 			return 0;
 
