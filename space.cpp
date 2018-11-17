@@ -31,7 +31,7 @@ using namespace std;
 			for(i=1;i<=3;i++)
 			{
 				seat_cnt[i] = 0;
-				for(j=0;j<50;j++)
+				for(j=0;j<MAX_SIZE;j++)
 				{
 					seat[i][j][0] = -1;
 					seat[i][j][1] = -1;
@@ -47,7 +47,7 @@ using namespace std;
 			for(i=1;i<=3;i++)
 			{
 				seat_cnt[i] = 0;
-				for(j=0;j<50;j++)
+				for(j=0;j<MAX_SIZE;j++)
 				{
 					seat[i][j][0] = -1;
 					seat[i][j][1] = -1;
@@ -61,7 +61,7 @@ using namespace std;
 			int i, j;
 			for(i=1;i<=3;i++)
 			{
-				for(j=0;j<50;j++)
+				for(j=0;j<MAX_SIZE;j++)
 				{
 					if(seat[i][j][1] <= now)  
 					{
@@ -88,7 +88,7 @@ using namespace std;
 		{
 			int i, j;
 			int loc;
-			for(i=0;i<50;i++)
+			for(i=0;i<MAX_SIZE;i++)
 			{
 				if(seat[floor][i][0] == -1) // insert in empty space
 				{
@@ -107,7 +107,7 @@ using namespace std;
 			{
 				for(i=1;i<=3;i++)
 				{
-					for(j=0;j<50;j++)
+					for(j=0;j<MAX_SIZE;j++)
 					{
 						if(mem[i][j] == name)
 						{
@@ -120,7 +120,7 @@ using namespace std;
 			{
 				for(i=1;i<=3;i++)
 				{
-					for(j=0;j<50;j++)
+					for(j=0;j<MAX_SIZE;j++)
 					{
 						if(mem[i][j] == name)
 						{
@@ -134,7 +134,7 @@ using namespace std;
 			{
 				for(i=1;i<=3;i++)
 				{
-					for(j=0;j<50;j++)
+					for(j=0;j<MAX_SIZE;j++)
 					{
 						if(mem[i][j] == name)
 						{
@@ -154,7 +154,7 @@ using namespace std;
 			int i, j;
 			for(i=1;i<=3;i++)
 			{
-				for(j=0;j<50;j++)
+				for(j=0;j<MAX_SIZE;j++)
 				{
 					if(mem[i][j] == name) return true;
 				}
@@ -165,16 +165,17 @@ using namespace std;
 		{
 			int i;
 			int min = 25;
-			if(seat_cnt[floor] == 50)
+			if(seat_cnt[floor] == MAX_SIZE)
 			{
-				for(i=0;i<50;i++)
+				for(i=0;i<MAX_SIZE;i++)
 				{
 					if(min > seat[floor][i][1])
 					{
 						min = seat[floor][i][1];
 					}
 				}
-				fastest_time = min;
+				if(min > time[floor][1]) fastest_time = time[floor][1];
+				else fastest_time = min;
 				return true;
 			}
 			return false;
@@ -291,7 +292,9 @@ cout << mem[i+1] << endl;*/
 			int min = 25;
 			if(room[id][0] != -1)
 			{
-				fastest_time = room[id][1];
+				if(room[id][1] >= time[1]) fastest_time = time[1];
+				else
+					fastest_time = room[id][1];
 				return true;
 			}
 			return false;
