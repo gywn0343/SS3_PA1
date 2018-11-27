@@ -21,12 +21,16 @@ class Library{
 		};
 		Book B;
 		Under U;
+		Magazine M;
+		
 		string member_name;
 		string resrc_name;
 		string date;
 		string state;  // Borrow=0 or Return=1
 		string resrc_type;  // Book=1 or others
 		string member_type; // Under or others
+		int LOAN_PERIOD;
+		int CAPACITY;
 		void print_result(int n, int num, string date);
 		void do_operation();
 		void set_resource(string in, int cnt);

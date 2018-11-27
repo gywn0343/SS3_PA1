@@ -18,21 +18,21 @@ void Library::print_result(int n, int num, string date)
 		switch(n)
 		{
 			case 0:
-				outFile << result[0] << endl; return;
+				/*outFile*/cout << result[0] << endl; return;
 			case 1:
-				outFile << result[1] << endl; return;
+				/*outFile*/cout << result[1] << endl; return;
 			case 2:
-				outFile << result[2] << num << endl; return;
+				/*outFile*/cout << result[2] << num << endl; return;
 			case 3:
-				outFile << result[3] << endl; return;
+				/*outFile*/cout << result[3] << endl; return;
 			case 4:
-				outFile << result[4] << date << endl; return;
+				/*outFile*/cout << result[4] << date << endl; return;
 			case 5:
-				outFile << result[5] << date << endl; return;
+				/*outFile*/cout << result[5] << date << endl; return;
 			case 6:
-				outFile << result[6] << date << endl; return;
+				/*outFile*/cout << result[6] << date << endl; return;
 			case 7:
-				outFile << result[7] << date << endl; return;
+				/*outFile*/cout << result[7] << date << endl; return;
 		}
 		outFile.close();
 	}
@@ -49,64 +49,96 @@ void Library::do_operation()
 	{
 		ret1 = B.do_op(state, resrc_name, member_name, date, ret_date1);
 	}
+	else if(resrc_type == "Magazine")
+	{
+		ret1 = M.do_op(state, resrc_name, member_name, date, ret_date1);
+	}
 	if(member_type == "Undergraduate")
 	{
 		ret2 = U.do_op(state, member_name, date, ret_date2);
-		if(ret1 == 1)  // no kind of resources in here
+	}
+	/*else if(member_type == "Graduate")
+	{
+		ret2 = G.do_op(state, member_name, date, ret_date2);
+	}*/
+
+	if(ret1 == 1)  // no kind of resources in here
+	{
+		print_result(1, 0, "");
+		return;
+	}
+	if(ret2 == 2)  // borrow # exceeded
+	{
+		print_result(2, 1, "");
+		return;
+	}
+	if(ret1 == 3)  // you never borrowed
+	{
+		print_result(3, 0, "");
+		return;
+	}
+	if(ret1 == 4)  // you already borrowed
+	{
+		print_result(4, 0, ret_date1);
+		return;
+	}
+	if(ret1 == 5)  // other people borrowed
+	{
+		print_result(5, 0, ret_date1);
+		return;
+	}
+	if(ret2 == 6)  // you are restricted
+	{
+		print_result(6, 0, ret_date2);
+		return;
+	}
+	if(ret1 == 7)  // delayed R
+	{
+		string d_day;
+		if(resrc_type == "Book")
 		{
-			print_result(1, 0, "");
-			return;
-		}
-		if(ret2 == 2)  // borrow # exceeded
-		{
-			print_result(2, 1, "");
-			return;
-		}
-		if(ret1 == 3)  // you never borrowed
-		{
-			print_result(3, 0, "");
-			return;
-		}
-		if(ret1 == 4)  // you already borrowed
-		{
-			print_result(4, 0, ret_date1);
-			return;
-		}
-		if(ret1 == 5)  // other people borrowed
-		{
-			print_result(5, 0, ret_date1);
-			return;
-		}
-		if(ret2 == 6)  // you are restricted
-		{
-			print_result(6, 0, ret_date2);
-			return;
-		}
-		if(ret1 == 7)  // delayed
-		{
-			string d_day;
 			B.get_due(d_day);
 			B.final_state(true, 14, "", "");
+		}
+		else if(resrc_type == "Magazine")
+		{
+			M.get_due(d_day);
+			M.final_state(true, 14, "", "");
+		}
+		if(member_type == "Undergraduate")
+		{
 			U.set_restrict_day(date, d_day, ret_date1);
 			U.final_state(state);
-			print_result(7, 0, ret_date1);
-			return;
 		}
-		if(ret2 == 0 || ret1 == 7)  // success or delayed return
+		print_result(7, 0, ret_date1);
+		return;
+	}
+	if(ret2 == 0 || ret1 == 7)  // success or delayed return
+	{
+		if(state == "B")
 		{
-			if(state == "B")
+			if(resrc_type == "Book")
+				B.final_state(false, LOAN_PERIOD, member_name, date);
+			else if(resrc_type == "Magazine")
+				M.final_state(false, LOAN_PERIOD, member_name, date);
+			if(member_type == "Undergraduate")
+				U.final_state(state);
+		}
+		else
+		{
+			if(resrc_type == "Book")
+				B.final_state(true, LOAN_PERIOD, "", "");
+			else if(resrc_type == "Magazine")
+				M.final_state(true, LOAN_PERIOD, "", "");
+			if(member_type == "Undergraduate")
 			{
-				B.final_state(false, 14, member_name, date);
 				U.final_state(state);
 			}
-			else
-			{
-				B.final_state(true, 14, "", "");
-			}
-			print_result(0, 0, "");
-			return;
 		}
+		print_result(0, 0, "");
+		return;
 	}
+		
 }
 
 void Library::set_resource(string in, int cnt)
@@ -121,6 +153,10 @@ void Library::set_resource(string in, int cnt)
 		if(rsrc == "Book")
 		{
 			B.add_resource(in);
+		}
+		else if(rsrc == "Magazine")
+		{
+			M.add_resource(in);
 		}
 	}
 }
@@ -143,6 +179,18 @@ void Library::set_info(string in, int cnt)
 			return;
 		case 4:
 			member_type = in;
+			if(in == "Undergraduate") 
+			{
+				LOAN_PERIOD = 14;
+			}
+			else if(in == "Graduate")
+			{
+				LOAN_PERIOD = 30;
+			}
+			else if(in == "Faculty")
+			{
+				LOAN_PERIOD = 30;
+			}
 			return;
 		case 5:
 			member_name = in;
@@ -161,7 +209,9 @@ void Library::getInformation(string line, int op)
 		{
 			e = i-1;
 			if(op == 0)
+			{
 				set_info(line.substr(s, e-s+1), cnt++);
+			}
 			else
 				set_resource(line.substr(s, e-s+1), cnt++);
 			s = i+1;
