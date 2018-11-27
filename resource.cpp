@@ -26,6 +26,7 @@ void Resource::set_date(string _date, int due)
 	(date.at(location)).day = stoi(_date.substr(6, 2));
 
 	struct info tmp = date.at(location);
+	due--;
 	if(tmp.day + due > 30)
 	{
 		if(tmp.month + 1 > 12)
@@ -83,7 +84,7 @@ int Resource::isInLibrary(string _name)
 	}
 	return -1;
 }
-int Resource::isAvailable(string member_name, int due, string _date, string& ret_date)
+int Resource::isAvailable(string member_name, string _date, string& ret_date)
 {
 	if(state.at(location) == true)
 	{
@@ -110,7 +111,6 @@ void Resource::final_state(bool in, int due, string member_name, string _date)
 		mem_name.at(location) = member_name;
 	if(_date != "")
 		set_date(_date, due);
-	print();
 }
 
 int Resource::isGoodReturn(string member_name, string _date)
@@ -131,13 +131,13 @@ int Resource::isGoodReturn(string member_name, string _date)
 		return 7;
 	return 0;
 }
-int Book::do_op(string B, string _name, int due, string mem_name, string now, string &ret_date)
+int Book::do_op(string B, string _name, string mem_name, string now, string &ret_date)
 {
 	int ret;
 	if(isInLibrary(_name) == -1) return 1;
 	if(B == "B")
 	{
-		ret = isAvailable(mem_name, due, now, ret_date);
+		ret = isAvailable(mem_name, now, ret_date);
 		if(ret == 4 || ret == 5) return ret; 
 	}
 	else 

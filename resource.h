@@ -24,15 +24,19 @@ class Resource{
 	public:
 		void add_resource(string _name);
 		int isInLibrary(string _name);
-		int isAvailable(string member_name, int due, string _date, string& ret_date);
+		int isAvailable(string member_name, string _date, string& ret_date);
 		void final_state(bool in, int due, string member_name, string _date);
 		int isGoodReturn(string member_name, string _date);
+		void get_due(string& d_day)
+		{
+			struct_to_string(due_date.at(location), d_day);
+		}
 };
 
 class Book : public Resource{
 	private:
 	public:
-		int do_op(string B, string _name, int due, string mem_name, string now, string &ret_date);
+		int do_op(string B, string _name, string mem_name, string now, string &ret_date);
 		
 };
 
