@@ -122,6 +122,14 @@ void Library::set_resource(string in, int cnt)
 		{
 			B.add_resource(in);
 		}
+		else if(rsrc == "Magazine")
+		{
+			M.add_resource(in);
+		}
+		else if(rsrc == "E-book")
+		{
+			E.add_resource(in);
+		}
 	}
 }
 
