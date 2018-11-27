@@ -2,28 +2,49 @@
 #include <string>
 using namespace std;
 
-struct data{
-	int year;
-	int day;
-	int month;
-};
+typedef struct M_INFO{
+	int b_num;
+	string restrict_due;
+	int cap;
+}M_INFO;
 class Member{
 	private:
-		vector<string> name;
-		vector<struct data> restrict_due;
-		vector<int> b_num;
-		int location;
+
 	public:
-		int get_member(string _name);
-		void get_res_due(string& ret_date);
-		void set_restrict_day(string _date, string d_day, string &ret_date);
-		bool isExceed(int N);
+		vector<string> name;
+		vector<M_INFO> data;
+		int location;
+		void set_restrict_day(string _date, string d_day, string &ret_date); 
+		bool isExceed(int N); 
+		void final_state(string B); 
 		bool isRestricted(string _date);
-		void final_state(string B);
+		void get_member(string _name);  
+		//bool isOverCapacity(int C);
 };
 
 class Under : public Member{
 	private:
+		int capacity;
+		int n_book;
 	public:
+		Under();
+		int do_op(string B, string _name, string _date, string& ret_date);
+};
+
+class Graduate : public Member{
+	private:
+		int capacity;
+		int n_book;
+	public:
+		Graduate();
+		int do_op(string B, string _name, string _date, string& ret_date);
+};
+
+class Faculty : public Member{
+	private:
+		int capacity;
+		int n_book;
+	public:
+		Faculty();
 		int do_op(string B, string _name, string _date, string& ret_date);
 };

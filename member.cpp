@@ -4,7 +4,7 @@
 #include "member.h"
 using namespace std;
 
-int Member::get_member(string _name)
+void Under::get_member(string _name)
 {
 	int i;
 	for(i=0;i<name.size();i++)
@@ -12,111 +12,128 @@ int Member::get_member(string _name)
 		if(name.at(i) == _name) 
 		{
 			location = i;
-			return i;
+			return;
 		}
 	}
-	struct data tmp;
-	tmp.day = 0;
-	tmp.year = 0;
-	tmp.month = 0;
 	name.push_back(_name);
-	restrict_due.push_back(tmp);
-	b_num.push_back(0);
+	M_INFO tmp;
+	tmp.b_num = 0;
+	tmp.cap = 0;
+	tmp.restrict_due = "";
+	data.push_back(tmp);
 	location = i;
-	return i;
 }
 
-void Member::get_res_due(string& ret_date)
-{
-	struct data due = restrict_due.at(location);
-	ret_date.push_back(due.year / 10 + '0');
-	ret_date.push_back(due.year % 10 + '0');
-	ret_date.push_back('/');
-	ret_date.push_back(due.month / 10 + '0');
-	ret_date.push_back(due.month % 10 + '0');
-	ret_date.push_back('/');
-	ret_date.push_back(due.day / 10 + '0');
-	ret_date.push_back(due.day % 10 + '0');
-}
-void Member::set_restrict_day(string _date, string d_day, string &ret_date)
-{
-	struct data tmp;
-	tmp.year = stoi(_date.substr(0, 2));
-	tmp.month = stoi(_date.substr(3, 2));
-	tmp.day = stoi(_date.substr(6, 2));
-	struct data tmp2;
-	tmp2.year = stoi(d_day.substr(0, 2));
-	tmp2.month = stoi(d_day.substr(3, 2));
-	tmp2.day = stoi(d_day.substr(6, 2));
 
-	struct data ret;
-	if(tmp.day < tmp2.day)
+void Member::set_restrict_day(string _date, string due_day, string &ret_date)
+{
+	int n_year = stoi(_date.substr(0, 2));
+	int n_month = stoi(_date.substr(3, 2));
+	int n_day = stoi(_date.substr(6, 2));
+	int d_year = stoi(due_day.substr(0, 2));
+	int d_month = stoi(due_day.substr(3, 2));
+	int d_day = stoi(due_day.substr(6, 2));
+
+	int year, month, day;
+	if(n_day < d_day)
 	{
-		if(tmp.month <= tmp2.month)
+		if(n_month <= d_month)
 		{
-			ret.year = tmp.year - tmp2.year - 1;
-			ret.month = 12 + (tmp.month - tmp2.month);
-			ret.day = 30 + (tmp.day - tmp2.day);
+			year = n_year - d_year - 1;
+			month = 12 + (n_month - d_month - 1);
+			day = 30 + (n_day - d_day);
 		}
 		else
 		{
-			ret.year = tmp.year - tmp2.year;
-			ret.month = tmp.month - tmp2.month - 1;
-			ret.day = 30 + (tmp.day + tmp2.day);
+			year = n_year - d_year;
+			month = n_month - d_month - 1;
+			day = 30 + (n_day - d_day);
 		}
 	}
 	else
 	{
-		ret.year = tmp.year - tmp2.year;
-		ret.month = tmp.month - tmp2.month;
-		ret.day = tmp.day - tmp2.day;
+		year = n_year - d_year;
+		month = n_month - d_month;
+		day = n_day - d_day;
 	}
-	ret.year += tmp.year;
-	ret.month += tmp.month;
-	ret.day += tmp.day;
-	restrict_due.at(location) = ret;
-	get_res_due(ret_date);
+	year += n_year;
+	month += n_month;
+	day += n_day;
+
+	if(year < 10) data.at(location).restrict_due += "0";
+	data.at(location).restrict_due += to_string(year);
+	data.at(location).restrict_due += "/";
+	if(month < 10) data.at(location).restrict_due += "0";
+	data.at(location).restrict_due += to_string(month);
+	data.at(location).restrict_due += "/";
+	if(day < 10) data.at(location).restrict_due += "0";
+	data.at(location).restrict_due += to_string(day);
+	ret_date = data.at(location).restrict_due;
 }
 bool Member::isExceed(int N)
 {
-	if(b_num.at(location) >= N) return true;
+	if(data.at(location).b_num >= N) return true;
 	return false;
 }
 bool Member::isRestricted(string _date)
 {
-	struct data tmp;  // today
-	tmp.year = stoi(_date.substr(0, 2));
-	tmp.month = stoi(_date.substr(3, 2));
-	tmp.day = stoi(_date.substr(6, 2));
-	struct data comp = restrict_due.at(location); // restructed due
-	if(comp.year > tmp.year)
-		return true;
-	if(comp.month > tmp.month)
-		return true;
-	if(comp.day >= tmp.day)
-		return true;
-	return false;
+	if(data.at(location).restrict_due == "") return 0;
+	string comp = data.at(location).restrict_due;
+	int i;
+	for(i=0;i<_date.size();i++)
+	{
+		if(_date.at(i) < comp.at(i)) return 0;
+	}
+	return 1;
 }
-void Member::final_state(string B)
+void Under::final_state(string B, string resrc_type, int size)
 {
 	if(B == "B")
-		b_num.at(location) += 1;
+	{
+		data.at(location).b_num += 1;
+		//if(resrc_type == "E_book") 
+		//	data.at(location).cap += size;
+	}
 	else
-		b_num.at(location) -= 1;
+		data.at(location).b_num -= 1;
 }
-int Under::do_op(string B, string _name, string _date, string& ret_date)
+Under::Under()
+{
+	capacity = 100;
+	n_book = 1;
+	loan_period = 14;
+}
+Graduate::Graduate()
+{
+	capacity = 500;
+	n_book = 5;
+	loan_period = 30;
+}
+Faculty::Faculty()
+{
+	capacity = 1000;
+	n_book = 10;
+	loan_period = 39;
+}
+/*bool Member::isOverCapacity(int C, int size)
+{
+	if(data.at(location).cap + size > C) return true;
+	return false;
+}*/
+int Under::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, /*int size*/)
 {
 	int ret;
 	get_member(_name);
 	if(B == "B")
 	{
-		if(isExceed(1)) return 2;
+		if(isExceed(n_book)) return 2;
 		ret = isRestricted(_date);
 		if(ret == true)
 		{
-			get_res_due(ret_date);
+			ret_date = data.at(location).restrict_due;
 			return 6;
 		}
+		//if(isOverCapacity(capacity, size)) return 15;
 		return 0;
 	}
 	else return 0;
