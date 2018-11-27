@@ -265,6 +265,7 @@ int E_book::do_op(string B, string _name, string mem_name, string now, string &r
 	set_date(now, due, tmp, d_day);
 	return 0;
 }
+
 int Magazine::check_month(string _date, string month)
 {
 	int n_year = stoi(_date.substr(0, 2));
