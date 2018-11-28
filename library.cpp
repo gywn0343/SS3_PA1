@@ -37,7 +37,16 @@ void Library::print_result(int n, int num, string date)
 		outFile.close();
 	}
 }
+void Library::get_class()
+{
+	if(member_type == "Undergraduate") M = &U;
+	else if(member_type == "Graduate") M = &G;
+	else if(member_type == "Faculty") M = &F;
 
+	if(resrc_type == "Book") R = &B;
+	else if(resrc_type == "Magazine") R = &Mag;
+	//else if(resrc_type == "E-book") R = &E;
+}
 void Library::do_operation()
 {
 	int ret1, ret2;
@@ -45,22 +54,10 @@ void Library::do_operation()
 	string ret_date1;
 	string ret_date2;
 	int ret_num;
-	if(resrc_type == "Book")
-	{
-		ret1 = B.do_op(state, resrc_name, member_name, date, ret_date1);
-	}
-	else if(resrc_type == "Magazine")
-	{
-		ret1 = M.do_op(state, resrc_name, member_name, date, ret_date1);
-	}
-	if(member_type == "Undergraduate")
-	{
-		ret2 = U.do_op(state, member_name, date, ret_date2);
-	}
-	/*else if(member_type == "Graduate")
-	{
-		ret2 = G.do_op(state, member_name, date, ret_date2);
-	}*/
+	get_class();
+
+	ret1 = R->do_op(state, resrc_name, member_name, date, ret_date1, ebook_size);
+	ret2 = M->do_op(state, member_name, date, ret_date2, resrc_type, ebook_size);
 
 	if(ret1 == 1)  // no kind of resources in here
 	{
@@ -95,21 +92,11 @@ void Library::do_operation()
 	if(ret1 == 7)  // delayed R
 	{
 		string d_day;
-		if(resrc_type == "Book")
-		{
-			B.get_due(d_day);
-			B.final_state(true, 14, "", "");
-		}
-		else if(resrc_type == "Magazine")
-		{
-			M.get_due(d_day);
-			M.final_state(true, 14, "", "");
-		}
-		if(member_type == "Undergraduate")
-		{
-			U.set_restrict_day(date, d_day, ret_date1);
-			U.final_state(state);
-		}
+		R->get_due(d_day);
+		R->final_state(true, LOAN_PERIOD, "", "");
+		M->set_restrict_day(date, d_day, ret_date1);
+		M->final_state(state, resrc_type, ebook_size);
+		
 		print_result(7, 0, ret_date1);
 		return;
 	}
@@ -117,23 +104,13 @@ void Library::do_operation()
 	{
 		if(state == "B")
 		{
-			if(resrc_type == "Book")
-				B.final_state(false, LOAN_PERIOD, member_name, date);
-			else if(resrc_type == "Magazine")
-				M.final_state(false, LOAN_PERIOD, member_name, date);
-			if(member_type == "Undergraduate")
-				U.final_state(state);
+			R->final_state(false, LOAN_PERIOD, member_name, date);
+			M->final_state(state, resrc_type, ebook_size);
 		}
 		else
 		{
-			if(resrc_type == "Book")
-				B.final_state(true, LOAN_PERIOD, "", "");
-			else if(resrc_type == "Magazine")
-				M.final_state(true, LOAN_PERIOD, "", "");
-			if(member_type == "Undergraduate")
-			{
-				U.final_state(state);
-			}
+			R->final_state(true, LOAN_PERIOD, "", "");
+			M->final_state(state, resrc_type, ebook_size);
 		}
 		print_result(0, 0, "");
 		return;
@@ -156,8 +133,12 @@ void Library::set_resource(string in, int cnt)
 		}
 		else if(rsrc == "Magazine")
 		{
-			M.add_resource(in);
+			Mag.add_resource(in);
 		}
+		/*else if(rsrc == "E-book")
+		{
+			E.add_resource(in);
+		}*/
 	}
 }
 
@@ -179,18 +160,6 @@ void Library::set_info(string in, int cnt)
 			return;
 		case 4:
 			member_type = in;
-			if(in == "Undergraduate") 
-			{
-				LOAN_PERIOD = 14;
-			}
-			else if(in == "Graduate")
-			{
-				LOAN_PERIOD = 30;
-			}
-			else if(in == "Faculty")
-			{
-				LOAN_PERIOD = 30;
-			}
 			return;
 		case 5:
 			member_name = in;

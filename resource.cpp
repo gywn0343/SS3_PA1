@@ -188,7 +188,7 @@ int Resource::isGoodReturn(string _date, string due_date)
 	}
 	return 0;
 }
-int Book::do_op(string B, string _name, string mem_name, string now, string &ret_date)
+int Book::do_op(string B, string _name, string mem_name, string now, string &ret_date, int size)
 {
 	int ret;
 	if((ret = isInLibrary(_name)) == -1) return 1;
@@ -207,7 +207,7 @@ int Book::do_op(string B, string _name, string mem_name, string now, string &ret
 	}
 	return 0;
 }
-/*int E_book::do_op(string B, string _name, string mem_name, string now, string &ret_date)
+/*int E_book::do_op(string B, string _name, string mem_name, string now, string &ret_date, int size)
 {
 	int ret;
 	if((ret = isInLibrary(_name)) == -1) return 1;
@@ -249,7 +249,7 @@ int Magazine::check_month(string _date, string month)
 			return 1;
 	}
 }
-int Magazine::do_op(string B, string _name, string mem_name, string now, string &ret_date)
+int Magazine::do_op(string B, string _name, string mem_name, string now, string &ret_date, int size)
 {
 	int ret;
 	int s, e;

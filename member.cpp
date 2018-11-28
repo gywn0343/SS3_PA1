@@ -4,7 +4,7 @@
 #include "member.h"
 using namespace std;
 
-void Under::get_member(string _name)
+void Member::get_member(string _name)
 {
 	int i;
 	for(i=0;i<name.size();i++)
@@ -86,7 +86,7 @@ bool Member::isRestricted(string _date)
 	}
 	return 1;
 }
-void Under::final_state(string B, string resrc_type, int size)
+void Member::final_state(string B, string resrc_type, int size)
 {
 	if(B == "B")
 	{
@@ -101,26 +101,59 @@ Under::Under()
 {
 	capacity = 100;
 	n_book = 1;
-	loan_period = 14;
 }
 Graduate::Graduate()
 {
 	capacity = 500;
 	n_book = 5;
-	loan_period = 30;
 }
 Faculty::Faculty()
 {
 	capacity = 1000;
 	n_book = 10;
-	loan_period = 39;
 }
 /*bool Member::isOverCapacity(int C, int size)
 {
 	if(data.at(location).cap + size > C) return true;
 	return false;
 }*/
-int Under::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, /*int size*/)
+int Under::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, int size)
+{
+	int ret;
+	get_member(_name);
+	if(B == "B")
+	{
+		if(isExceed(n_book)) return 2;
+		ret = isRestricted(_date);
+		if(ret == true)
+		{
+			ret_date = data.at(location).restrict_due;
+			return 6;
+		}
+		//if(isOverCapacity(capacity, size)) return 15;
+		return 0;
+	}
+	else return 0;
+}
+int Faculty::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, int size)
+{
+	int ret;
+	get_member(_name);
+	if(B == "B")
+	{
+		if(isExceed(n_book)) return 2;
+		ret = isRestricted(_date);
+		if(ret == true)
+		{
+			ret_date = data.at(location).restrict_due;
+			return 6;
+		}
+		//if(isOverCapacity(capacity, size)) return 15;
+		return 0;
+	}
+	else return 0;
+}
+int Graduate::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, int size)
 {
 	int ret;
 	get_member(_name);

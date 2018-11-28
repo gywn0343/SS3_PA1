@@ -19,9 +19,14 @@ class Library{
 			"Restricted member until ",
 			"Delayed return. You'll be restricted until "
 		};
-		Book B;
+		Member *M;
+		Resource *R;
 		Under U;
-		Magazine M;
+		Graduate G;
+		Faculty F;
+		Book B;
+		Magazine Mag;
+		//E_book E;
 		
 		string member_name;
 		string resrc_name;
@@ -29,8 +34,9 @@ class Library{
 		string state;  // Borrow=0 or Return=1
 		string resrc_type;  // Book=1 or others
 		string member_type; // Under or others
+		void get_class();
 		int LOAN_PERIOD;
-		int CAPACITY;
+		int ebook_size;
 		void print_result(int n, int num, string date);
 		void do_operation();
 		void set_resource(string in, int cnt);

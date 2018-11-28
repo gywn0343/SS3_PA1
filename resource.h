@@ -22,6 +22,10 @@ class Resource{
 		int isInLibrary(string _name);
 		int isGoodReturn(string _date, string due_date);
 		void set_date(string _date, int due, string&, string&);
+		virtual void add_resource(string _name) = 0;
+		virtual void final_state(bool in, int due, string member_name, string _date) = 0;
+		virtual int do_op(string B, string _name, string mem_name, string now, string &ret_date, int s) = 0;
+		virtual void get_due(string& d_day) = 0;
 };
 
 class Book : public Resource{
@@ -31,7 +35,7 @@ class Book : public Resource{
 	public:
 		void final_state(bool in, int due, string member_name, string _date);
 		void add_resource(string _name);
-		int do_op(string B, string _name, string mem_name, string now, string &ret_date);
+		int do_op(string B, string _name, string mem_name, string now, string &ret_date, int s);
 		void get_due(string& d_day)
 		{
 			d_day = data.at(location).due_date;
@@ -47,7 +51,7 @@ class Magazine : public Resource{
 	public:
 		void add_resource(string _name);
 		void final_state(bool in, int due, string member_name, string _date);
-		int do_op(string B, string _name, string mem_name, string now, string &ret_date);
+		int do_op(string B, string _name, string mem_name, string now, string &ret_date, int s);
 		void get_due(string& d_day)
 		{
 			int i;
