@@ -1,14 +1,21 @@
 #include <vector>
 #include <string>
+#include <list>
 using namespace std;
 
+typedef struct E_INFO{
+	string due;
+	int size;
+}E_INFO;
 typedef struct M_INFO{
 	int b_num;
 	string restrict_due;
+	list<E_INFO> e_info;
 	int cap;
 }M_INFO;
 class Member{
 	private:
+		int comp(string a, string b);
 
 	public:
 		vector<string> name;
@@ -16,10 +23,11 @@ class Member{
 		int location;
 		void set_restrict_day(string _date, string d_day, string &ret_date); 
 		bool isExceed(int N); 
-		void final_state(string B, string resrc_type, int size);
+		void final_state(string B, string resrc_type, int size, string);
 		bool isRestricted(string _date);
 		void get_member(string _name);  
-		//bool isOverCapacity(int C);
+		bool isOverCapacity(int C, int);
+		void update_ebook(string);
 		virtual int do_op(string, string, string, string&, string, int) = 0;
 };
 

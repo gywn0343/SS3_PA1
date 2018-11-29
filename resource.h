@@ -1,17 +1,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 using namespace std;
 #ifndef _RESOURCE_H
 #define _RESOURCE_H
-#define N_MGZ 100
+#define N_MEMBER 100
 typedef struct resrc_info{
 	string month;
 	string mem_name;
 	bool state;
 	string date;
 	string due_date;
-	int size;
 }INFO;
 
 class Resource{
@@ -20,12 +20,12 @@ class Resource{
 		vector<string> name;
 		int location;
 		int isInLibrary(string _name);
-		int isGoodReturn(string _date, string due_date);
+		int isLate(string _date, string due_date);
 		void set_date(string _date, int due, string&, string&);
-		virtual void add_resource(string _name) = 0;
+		virtual void add_resource(string _name, int s) = 0;
 		virtual void final_state(bool in, int due, string member_name, string _date) = 0;
-		virtual int do_op(string B, string _name, string mem_name, string now, string &ret_date, int s) = 0;
-		virtual void get_due(string& d_day) = 0;
+		virtual int do_op(string B, string _name, string mem_name, string now, string &ret_date, int& size, string& d_day, int due) = 0;
+		virtual void get_due(string& d_day, string) = 0;
 };
 
 class Book : public Resource{
@@ -34,9 +34,9 @@ class Book : public Resource{
 		int isAvailable(string member_name, string _date, string& ret_date);
 	public:
 		void final_state(bool in, int due, string member_name, string _date);
-		void add_resource(string _name);
-		int do_op(string B, string _name, string mem_name, string now, string &ret_date, int s);
-		void get_due(string& d_day)
+		void add_resource(string _name, int s);
+		int do_op(string B, string _name, string mem_name, string now, string &ret_date, int& size, string& d_day, int due);
+		void get_due(string& d_day, string mem_name)
 		{
 			d_day = data.at(location).due_date;
 		}
@@ -44,30 +44,49 @@ class Book : public Resource{
 };
 class Magazine : public Resource{
 	private:
-		vector<INFO*> data;
+		vector<list<INFO>> data;
 		string month_rec;
 		int isAvailable(string member_name, string _date, string& ret_date, string month);
 		int check_month(string, string);
 	public:
-		void add_resource(string _name);
+		void add_resource(string _name, int s);
 		void final_state(bool in, int due, string member_name, string _date);
-		int do_op(string B, string _name, string mem_name, string now, string &ret_date, int s);
-		void get_due(string& d_day)
+		int do_op(string B, string _name, string mem_name, string now, string &ret_date, int& size, string& d_day, int due);
+		void get_due(string& d_day, string mem_name)
 		{
-			int i;
-			for(i=0;i<N_MGZ;i++)
+			list<INFO>::iterator iter;
+			for(iter = data.at(location).begin();iter != data.at(location).end();++iter)
 			{
-				if(data.at(location)[i].month == month_rec) break;
+				if(iter->month == month_rec) break;
 			}
-			d_day = data.at(location)[i].due_date;
+			if(iter == data.at(location).end()) d_day = "99/99/99";
+			else
+				d_day = iter->due_date;
 		}
 };
 
-/*class E_book : public Resource{
+class E_book : public Resource{
 	private:
-		vector<INFO> data;
+		vector<list<INFO>> data;
+		vector<int> size;
+		int isAvailable(string member_name, string _date, string& ret_date);
+		void flush_ebook(string now);
 	public:
 		void add_resource(string _name, int size);
-};*/
+		void final_state(bool in, int due, string member_name, string _date);
+		int do_op(string B, string _name, string mem_name, string now, string &ret_date, int& size, string& d_day, int due);
+		void get_due(string& d_day, string mem_name)
+		{
+			list<INFO>::iterator iter;
+
+			for(iter = data.at(location).begin();iter != data.at(location).end();++iter)
+			{
+				if(iter->mem_name == mem_name) break;
+			}
+			if(iter == data.at(location).end()) d_day = "99/99/99";
+			else
+				d_day = iter->due_date;
+		}
+};
 
 #endif

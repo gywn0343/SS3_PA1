@@ -1,10 +1,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 #include "resource.h"
 using namespace std;
 
-void Book::add_resource(string _name)
+void Book::add_resource(string _name, int s)
 {
 	INFO data_tmp;
 	data_tmp.mem_name = "";
@@ -14,32 +15,35 @@ void Book::add_resource(string _name)
 	name.push_back(_name);
 	data.push_back(data_tmp);
 }
-void Magazine::add_resource(string _name)
-{
-	INFO *data_tmp = new INFO[N_MGZ];
-	int i;
-	for(i=0;i<N_MGZ;i++)
-	{
-		data_tmp[i].mem_name = "";
-		data_tmp[i].state = true;
-		data_tmp[i].date = "";
-		data_tmp[i].due_date = "";
-		data_tmp[i].month = "";
-	}
-	name.push_back(_name);
-	data.push_back(data_tmp);
-}
-/*void E_book::add_resource(string _name, int size)
+void Magazine::add_resource(string _name, int s)
 {
 	INFO data_tmp;
+	list<INFO> list_tmp;
+
 	data_tmp.mem_name = "";
 	data_tmp.state = true;
 	data_tmp.date = "";
 	data_tmp.due_date = "";
-	data_tmp.size = size;
+	data_tmp.month = "";
+	list_tmp.push_back(data_tmp);
+
 	name.push_back(_name);
-	data.push_back(data_tmp);
-}*/
+	data.push_back(list_tmp);
+}
+void E_book::add_resource(string _name, int _size)
+{
+	INFO data_tmp;
+	list<INFO> list_tmp;
+	
+	data_tmp.mem_name = "";
+	data_tmp.date = "";
+	data_tmp.due_date = "";
+	list_tmp.push_back(data_tmp);
+	
+	name.push_back(_name);
+	size.push_back(_size);
+	data.push_back(list_tmp);
+}
 int Resource::isInLibrary(string _name)
 {
 	for(int i=0;i<name.size();i++)
@@ -75,21 +79,20 @@ int Book::isAvailable(string member_name, string _date, string& ret_date)
 int Magazine::isAvailable(string member_name, string _date, string& ret_date, string month)
 {
 	int i, tmp;
-	
 
-
-	for(i=0;i<N_MGZ;i++)
+	list<INFO>::iterator iter;
+	for(iter = data.at(location).begin();iter != data.at(location).end();++iter)
 	{
-		if(data.at(location)[i].month == month)
+		if(iter->month == month)
 		{
-			if(data.at(location)[i].mem_name == member_name) 
+			if(iter->mem_name == member_name) 
 			{
-				ret_date = data.at(location)[i].date;
+				ret_date = iter->date;
 				return 4;
 			}
 			else
 			{
-				ret_date = data.at(location)[i].due_date;
+				ret_date = iter->due_date;
 				return 5;
 			}
 		}
@@ -97,12 +100,24 @@ int Magazine::isAvailable(string member_name, string _date, string& ret_date, st
 
 	return 0;
 }
+int E_book::isAvailable(string member_name, string _date, string& ret_date)
+{
+	list<INFO>::iterator iter;
+	for(iter = data.at(location).begin();iter != data.at(location).end();++iter)
+	{
+		if(iter->mem_name == member_name)
+		{
+			ret_date = iter->date;
+			return 4;
+		}
+	}
 
+	return 0;
+}
 void Resource::set_date(string _date, int due, string& date, string& due_date)
 {
 	date = _date;	
 	due_date = "";
-
 	int tyear = stoi(_date.substr(0, 2));
 	int tmonth = stoi(_date.substr(3, 2));
 	int tday = stoi(_date.substr(6, 2));
@@ -136,6 +151,7 @@ void Resource::set_date(string _date, int due, string& date, string& due_date)
 	due_date += "/";
 	if(day < 10) due_date += "0";
 	due_date += to_string(day);
+
 }
 void Book::final_state(bool in, int due, string member_name, string _date)
 {
@@ -145,50 +161,55 @@ void Book::final_state(bool in, int due, string member_name, string _date)
 	if(_date != "")
 		set_date(_date, due, data.at(location).date, data.at(location).due_date);
 }
+void E_book::final_state(bool in, int due, string member_name, string _date)
+{
+
+	INFO tmp;
+	tmp.mem_name = member_name;
+	set_date(_date, due, tmp.date, tmp.due_date);
+	data.at(location).push_back(tmp);
+}
 void Magazine::final_state(bool in, int due, string member_name, string _date)
 {
-	int i;
+	list<INFO>::iterator iter;
 
 	if(in == false) // Borrow
 	{
-		for(i=0;i<N_MGZ;i++)
-		{
-			if(data.at(location)[i].month == "")
-			{
-				data.at(location)[i].state = in;
-				data.at(location)[i].mem_name = member_name;
-				set_date(_date, due, data.at(location)[i].date, data.at(location)[i].due_date);
-				data.at(location)[i].month = month_rec;
-				return;
-			}
-		}
+		INFO tmp;
+		tmp.state = in;
+		tmp.mem_name = member_name;
+		set_date(_date, due, tmp.date, tmp.due_date);
+		tmp.month = month_rec;
+		data.at(location).push_back(tmp);
+
+		return;
 	}
 	else // Return
 	{
-		for(i=0;i<N_MGZ;i++)
+
+		for(iter = data.at(location).begin();iter != data.at(location).end();++iter)
 		{
-			if(data.at(location)[i].month == month_rec)
+			if(iter->month == month_rec)
 			{
-				data.at(location)[i].state = in;
-				data.at(location)[i].mem_name = "";
-				data.at(location)[i].month = "";
+				iter = data.at(location).erase(iter);
+				iter--;
 				return;
 			}
 		}
 	}
 }
 
-int Resource::isGoodReturn(string _date, string due_date)
+int Resource::isLate(string a, string b) // is 'a' late than 'b' ? a > b ?
 {
 	int i;
-	for(i=0;i<_date.size();i++)
+	for(i=0;i<a.size();i++)
 	{
-		if(_date.at(i) < due_date.at(i)) return 0;
-		if(_date.at(i) > due_date.at(i)) return 7;
+		if(a.at(i) < b.at(i)) return 0;
+		if(a.at(i) > b.at(i)) return 1;
 	}
 	return 0;
 }
-int Book::do_op(string B, string _name, string mem_name, string now, string &ret_date, int size)
+int Book::do_op(string B, string _name, string mem_name, string now, string &ret_date, int& size, string& d_day, int due)
 {
 	int ret;
 	if((ret = isInLibrary(_name)) == -1) return 1;
@@ -202,30 +223,48 @@ int Book::do_op(string B, string _name, string mem_name, string now, string &ret
 	{
 		if(data.at(location).mem_name != mem_name)
 			return 3;
-		ret = isGoodReturn(now, data.at(location).due_date);
-		if(ret == 7) return ret;
+		ret = isLate(now, data.at(location).due_date);
+		if(ret == true) return 7;
 	}
 	return 0;
 }
-/*int E_book::do_op(string B, string _name, string mem_name, string now, string &ret_date, int size)
+
+void E_book::flush_ebook(string now)
 {
-	int ret;
+	list<INFO>::iterator iter;
+
+	int i;
+	for(i=0;i<data.size();i++)
+	{
+		for(iter = data.at(i).begin();iter != data.at(i).end();++iter)
+		{
+			if(iter->due_date == "") continue;
+			if(isLate(now, iter->due_date))
+			{
+				iter = data.at(i).erase(iter);
+				iter--;
+			}
+		}
+	}
+
+}
+int E_book::do_op(string B, string _name, string mem_name, string now, string &ret_date, int& _size, string& d_day, int due)
+{
+	int ret, i;
 	if((ret = isInLibrary(_name)) == -1) return 1;
 	else location = ret;
-	if(B == "B")
-	{
-		ret = isAvailable(mem_name, now, ret_date);
-		if(ret == 4 || ret == 5) return ret; 
-	}
-	else 
-	{
-		if(data.at(location).mem_name != mem_name)
-			return 3;
-		ret = isGoodReturn(now, data.at(location).due_date);
-		if(ret == 7) return ret;
-	}
+
+
+	flush_ebook(now);
+
+	ret = isAvailable(mem_name, now, ret_date);
+	if(ret == 4) return ret; 
+
+	_size = size.at(location);
+	string tmp;
+	set_date(now, due, tmp, d_day);
 	return 0;
-}*/
+}
 int Magazine::check_month(string _date, string month)
 {
 	int n_year = stoi(_date.substr(0, 2));
@@ -249,14 +288,17 @@ int Magazine::check_month(string _date, string month)
 			return 1;
 	}
 }
-int Magazine::do_op(string B, string _name, string mem_name, string now, string &ret_date, int size)
+int Magazine::do_op(string B, string _name, string mem_name, string now, string &ret_date, int& _size, string& d_day, int due)
 {
 	int ret;
 	int s, e;
-
 	string s_b = "[";
 	string e_b = "]";
 	s = _name.find(s_b);
+	if(s == -1)
+	{
+		return 1;
+	}
 	e = _name.find(e_b);
 	string month = _name.substr(s + 1, e - s - 1);
 
@@ -277,14 +319,15 @@ int Magazine::do_op(string B, string _name, string mem_name, string now, string 
 	}
 	else 
 	{
-		for(i=0;i<N_MGZ;i++)
+		list<INFO>::iterator iter;
+		for(iter = data.at(location).begin();iter != data.at(location).end();++iter)
 		{
-			if(data.at(location)[i].month == month) break;
+			if(iter->month == month) break;
 		}
-		if(data.at(location)[i].mem_name != mem_name)
+		if(iter->mem_name != mem_name)
 			return 3;
-		ret = isGoodReturn(now, data.at(location)[i].due_date);
-		if(ret == 7) return ret;
+		ret = isLate(now, iter->due_date);
+		if(ret == true) return 7;
 	}
 	return 0;
 }

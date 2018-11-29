@@ -13,8 +13,8 @@ void Library::print_result(int n, int num, string date)
 	outFile.open(filePath, ios_base::app);
 	if(outFile.is_open())
 	{
-		outFile << ++count << "	";
-		outFile << n << "	";
+		/*outFile*/cout << ++count << "	";
+		/*outFile*/cout << n << "	";
 		switch(n)
 		{
 			case 0:
@@ -33,19 +33,36 @@ void Library::print_result(int n, int num, string date)
 				/*outFile*/cout << result[6] << date << endl; return;
 			case 7:
 				/*outFile*/cout << result[7] << date << endl; return;
+			case 15:
+				/*outFile*/cout << result[8] << endl; return;
 		}
 		outFile.close();
 	}
 }
 void Library::get_class()
 {
-	if(member_type == "Undergraduate") M = &U;
-	else if(member_type == "Graduate") M = &G;
-	else if(member_type == "Faculty") M = &F;
+	if(member_type == "Undergraduate") 
+	{	
+		M = &U;
+		LOAN_PERIOD = 14;
+		B_NUM = 1;
+	}
+	else if(member_type == "Graduate") 
+	{	
+		M = &G;
+		LOAN_PERIOD = 30;
+		B_NUM = 5;
+	}
+	else if(member_type == "Faculty")
+	{	
+		M = &F;
+		LOAN_PERIOD = 30;
+		B_NUM = 10;
+	}
 
 	if(resrc_type == "Book") R = &B;
 	else if(resrc_type == "Magazine") R = &Mag;
-	//else if(resrc_type == "E-book") R = &E;
+	else if(resrc_type == "E-book") R = &E;
 }
 void Library::do_operation()
 {
@@ -55,9 +72,14 @@ void Library::do_operation()
 	string ret_date2;
 	int ret_num;
 	get_class();
+	string d_day;
 
-	ret1 = R->do_op(state, resrc_name, member_name, date, ret_date1, ebook_size);
-	ret2 = M->do_op(state, member_name, date, ret_date2, resrc_type, ebook_size);
+	ret1 = R->do_op(state, resrc_name, member_name, date, ret_date1, ebook_size, d_day);
+
+	if(!(ret1 == 1 || ret1 == 3 || ret1 == 4 || ret1 == 5 || ret1 == 7))
+	{
+		ret2 = M->do_op(state, member_name, date, ret_date2, resrc_type, ebook_size);
+	}
 
 	if(ret1 == 1)  // no kind of resources in here
 	{
@@ -66,7 +88,7 @@ void Library::do_operation()
 	}
 	if(ret2 == 2)  // borrow # exceeded
 	{
-		print_result(2, 1, "");
+		print_result(2, B_NUM, "");
 		return;
 	}
 	if(ret1 == 3)  // you never borrowed
@@ -91,11 +113,10 @@ void Library::do_operation()
 	}
 	if(ret1 == 7)  // delayed R
 	{
-		string d_day;
-		R->get_due(d_day);
+		R->get_due(d_day, member_name);
 		R->final_state(true, LOAN_PERIOD, "", "");
 		M->set_restrict_day(date, d_day, ret_date1);
-		M->final_state(state, resrc_type, ebook_size);
+		M->final_state(state, resrc_type, ebook_size, d_day);
 		
 		print_result(7, 0, ret_date1);
 		return;
@@ -105,16 +126,19 @@ void Library::do_operation()
 		if(state == "B")
 		{
 			R->final_state(false, LOAN_PERIOD, member_name, date);
-			M->final_state(state, resrc_type, ebook_size);
+			M->final_state(state, resrc_type, ebook_size, d_day);
 		}
 		else
 		{
+			R->get_due(d_day, member_name);
 			R->final_state(true, LOAN_PERIOD, "", "");
-			M->final_state(state, resrc_type, ebook_size);
+			M->final_state(state, resrc_type, ebook_size, d_day);
 		}
 		print_result(0, 0, "");
 		return;
 	}
+	if(ret2 == 15)
+		print_result(15, 0, "");
 		
 }
 
@@ -129,16 +153,23 @@ void Library::set_resource(string in, int cnt)
 	{
 		if(rsrc == "Book")
 		{
-			B.add_resource(in);
+			B.add_resource(in, 0);
 		}
 		else if(rsrc == "Magazine")
 		{
-			Mag.add_resource(in);
+			Mag.add_resource(in, 0);
 		}
-		/*else if(rsrc == "E-book")
+		else if(rsrc == "E-book")
 		{
-			E.add_resource(in);
-		}*/
+			int s, e;
+
+			string s_b = "[";
+			string e_b = "]";
+			s = in.find(s_b);
+			e = in.find(e_b);
+			ebook_size = stoi(in.substr(s + 1, e - s - 1));
+			E.add_resource(in.substr(0, s), ebook_size);
+		}
 	}
 }
 

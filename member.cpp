@@ -4,6 +4,16 @@
 #include "member.h"
 using namespace std;
 
+int Member::comp(string a, string b)
+{
+	int i;
+	for(i=0;i<a.size();i++)
+	{
+		if(a.at(i) > b.at(i)) return 1;
+		else if(a.at(i) < b.at(i)) return -1;
+	}
+	return 0;
+}
 void Member::get_member(string _name)
 {
 	int i;
@@ -17,9 +27,13 @@ void Member::get_member(string _name)
 	}
 	name.push_back(_name);
 	M_INFO tmp;
+	E_INFO e_tmp;
+	e_tmp.due = "";
+	e_tmp.size = 0;
 	tmp.b_num = 0;
 	tmp.cap = 0;
 	tmp.restrict_due = "";
+	tmp.e_info.push_back(e_tmp);
 	data.push_back(tmp);
 	location = i;
 }
@@ -60,6 +74,7 @@ void Member::set_restrict_day(string _date, string due_day, string &ret_date)
 	month += n_month;
 	day += n_day;
 
+	data.at(location).restrict_due = "";
 	if(year < 10) data.at(location).restrict_due += "0";
 	data.at(location).restrict_due += to_string(year);
 	data.at(location).restrict_due += "/";
@@ -78,21 +93,26 @@ bool Member::isExceed(int N)
 bool Member::isRestricted(string _date)
 {
 	if(data.at(location).restrict_due == "") return 0;
-	string comp = data.at(location).restrict_due;
-	int i;
-	for(i=0;i<_date.size();i++)
-	{
-		if(_date.at(i) < comp.at(i)) return 0;
-	}
-	return 1;
+
+	int ret = comp(_date, data.at(location).restrict_due);
+	if(ret > 0) return 0;
+	else return 1;
 }
-void Member::final_state(string B, string resrc_type, int size)
+void Member::final_state(string B, string resrc_type, int size, string due)
 {
 	if(B == "B")
 	{
 		data.at(location).b_num += 1;
-		//if(resrc_type == "E_book") 
-		//	data.at(location).cap += size;
+		if(resrc_type == "E-book") 
+		{
+			E_INFO tmp;
+			tmp.due = due;
+			tmp.size = size;
+			
+			data.at(location).e_info.push_back(tmp);
+			data.at(location).cap += size;
+			data.at(location).b_num++;
+		}
 	}
 	else
 		data.at(location).b_num -= 1;
@@ -112,15 +132,34 @@ Faculty::Faculty()
 	capacity = 1000;
 	n_book = 10;
 }
-/*bool Member::isOverCapacity(int C, int size)
+
+bool Member::isOverCapacity(int C, int size)
 {
 	if(data.at(location).cap + size > C) return true;
 	return false;
-}*/
+}
+void Member::update_ebook(string now)
+{
+	//list<E_INFO> e_tmp = data.at(location).e_info;
+	
+	list<E_INFO>::iterator iter;
+	for(iter = data.at(location).e_info.begin();iter != data.at(location).e_info.end();++iter)
+	{
+cout << iter->due << " " << now << endl;
+		if(comp(iter->due, now) < 0)
+		{
+			data.at(location).cap -= iter->size;
+			data.at(location).b_num -= 1;
+			iter = data.at(location).e_info.erase(iter);
+			--iter;
+		}
+	}
+}
 int Under::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, int size)
 {
 	int ret;
 	get_member(_name);
+	if(size > 0) update_ebook(_date);
 	if(B == "B")
 	{
 		if(isExceed(n_book)) return 2;
@@ -130,15 +169,19 @@ int Under::do_op(string B, string _name, string _date, string& ret_date, string 
 			ret_date = data.at(location).restrict_due;
 			return 6;
 		}
-		//if(isOverCapacity(capacity, size)) return 15;
+		if(isOverCapacity(capacity, size)) return 15;
+
 		return 0;
 	}
 	else return 0;
 }
+
 int Faculty::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, int size)
 {
 	int ret;
+
 	get_member(_name);
+	if(size > 0) update_ebook(_date);
 	if(B == "B")
 	{
 		if(isExceed(n_book)) return 2;
@@ -148,7 +191,7 @@ int Faculty::do_op(string B, string _name, string _date, string& ret_date, strin
 			ret_date = data.at(location).restrict_due;
 			return 6;
 		}
-		//if(isOverCapacity(capacity, size)) return 15;
+		if(isOverCapacity(capacity, size)) return 15;
 		return 0;
 	}
 	else return 0;
@@ -156,7 +199,10 @@ int Faculty::do_op(string B, string _name, string _date, string& ret_date, strin
 int Graduate::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, int size)
 {
 	int ret;
-	get_member(_name);
+
+	get_member(_name);	
+	
+	if(size > 0) update_ebook(_date);
 	if(B == "B")
 	{
 		if(isExceed(n_book)) return 2;
@@ -166,7 +212,7 @@ int Graduate::do_op(string B, string _name, string _date, string& ret_date, stri
 			ret_date = data.at(location).restrict_due;
 			return 6;
 		}
-		//if(isOverCapacity(capacity, size)) return 15;
+		if(isOverCapacity(capacity, size)) return 15;
 		return 0;
 	}
 	else return 0;

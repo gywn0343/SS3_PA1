@@ -9,15 +9,16 @@ using namespace std;
 
 class Library{
 	private:
-		string result[8] = {
-			"Success.",
-			"Non exist resource.",
-			"Exeeds your possible number of borrow. possible# of borrows: ",
-			"You did not borrow this book.",
-			"You already borrowed this book at ",
-			"Other member already borrowed this book. This book will be returned at ",
-			"Restricted member until ",
-			"Delayed return. You'll be restricted until "
+		string result[9] = {
+			"Success.", //0
+			"Non exist resource.", //1
+			"Exeeds your possible number of borrow. possible# of borrows: ", //2
+			"You did not borrow this book.", //3
+			"You already borrowed this book at ", // 4
+			"Other member already borrowed this book. This book will be returned at ", // 5
+			"Restricted member until ", // 6
+			"Delayed return. You'll be restricted until ", // 7
+			"Exceeds your storage capacity." // 15
 		};
 		Member *M;
 		Resource *R;
@@ -26,7 +27,7 @@ class Library{
 		Faculty F;
 		Book B;
 		Magazine Mag;
-		//E_book E;
+		E_book E;
 		
 		string member_name;
 		string resrc_name;
@@ -36,6 +37,7 @@ class Library{
 		string member_type; // Under or others
 		void get_class();
 		int LOAN_PERIOD;
+		int B_NUM;
 		int ebook_size;
 		void print_result(int n, int num, string date);
 		void do_operation();
