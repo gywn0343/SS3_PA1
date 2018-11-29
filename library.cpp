@@ -74,18 +74,15 @@ void Library::do_operation()
 	get_class();
 	string d_day;
 
-	ret1 = R->do_op(state, resrc_name, member_name, date, ret_date1, ebook_size, d_day);
-
-	if(!(ret1 == 1 || ret1 == 3 || ret1 == 4 || ret1 == 5 || ret1 == 7))
-	{
-		ret2 = M->do_op(state, member_name, date, ret_date2, resrc_type, ebook_size);
-	}
-
+	ret1 = R->do_op(state, resrc_name, member_name, date, ret_date1, ebook_size, d_day, LOAN_PERIOD);
 	if(ret1 == 1)  // no kind of resources in here
 	{
 		print_result(1, 0, "");
 		return;
 	}
+
+	ret2 = M->do_op(state, member_name, date, ret_date2, resrc_type, ebook_size);
+
 	if(ret2 == 2)  // borrow # exceeded
 	{
 		print_result(2, B_NUM, "");

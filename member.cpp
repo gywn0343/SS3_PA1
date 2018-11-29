@@ -48,7 +48,8 @@ void Member::set_restrict_day(string _date, string due_day, string &ret_date)
 	int d_month = stoi(due_day.substr(3, 2));
 	int d_day = stoi(due_day.substr(6, 2));
 
-	int year, month, day;
+	int year, month, day, carry;
+
 	if(n_day < d_day)
 	{
 		if(n_month <= d_month)
@@ -70,9 +71,28 @@ void Member::set_restrict_day(string _date, string due_day, string &ret_date)
 		month = n_month - d_month;
 		day = n_day - d_day;
 	}
-	year += n_year;
-	month += n_month;
-	day += n_day;
+	if(day + n_day > 30) 
+	{
+		day += n_day + carry - 30;
+		carry = 1;
+	}
+	else 
+	{
+		day += n_day;
+		carry = 0;
+	}
+
+	if(month + n_month + carry > 12) 
+	{
+		month += n_month + carry - 12;
+		carry = 1;
+	}
+	else 
+	{
+		month += n_month + carry;
+		carry = 0;
+	}
+	year += n_year + carry;
 
 	data.at(location).restrict_due = "";
 	if(year < 10) data.at(location).restrict_due += "0";
@@ -140,12 +160,9 @@ bool Member::isOverCapacity(int C, int size)
 }
 void Member::update_ebook(string now)
 {
-	//list<E_INFO> e_tmp = data.at(location).e_info;
-	
 	list<E_INFO>::iterator iter;
 	for(iter = data.at(location).e_info.begin();iter != data.at(location).e_info.end();++iter)
 	{
-cout << iter->due << " " << now << endl;
 		if(comp(iter->due, now) < 0)
 		{
 			data.at(location).cap -= iter->size;
@@ -169,7 +186,10 @@ int Under::do_op(string B, string _name, string _date, string& ret_date, string 
 			ret_date = data.at(location).restrict_due;
 			return 6;
 		}
-		if(isOverCapacity(capacity, size)) return 15;
+		if(resrc_type == "E-book")
+		{
+			if(isOverCapacity(capacity, size)) return 15;
+		}
 
 		return 0;
 	}
@@ -191,7 +211,10 @@ int Faculty::do_op(string B, string _name, string _date, string& ret_date, strin
 			ret_date = data.at(location).restrict_due;
 			return 6;
 		}
-		if(isOverCapacity(capacity, size)) return 15;
+		if(resrc_type == "E-book")
+		{
+			if(isOverCapacity(capacity, size)) return 15;
+		}
 		return 0;
 	}
 	else return 0;
@@ -212,7 +235,10 @@ int Graduate::do_op(string B, string _name, string _date, string& ret_date, stri
 			ret_date = data.at(location).restrict_due;
 			return 6;
 		}
-		if(isOverCapacity(capacity, size)) return 15;
+		if(resrc_type == "E-book")
+		{
+			if(isOverCapacity(capacity, size)) return 15;
+		}
 		return 0;
 	}
 	else return 0;
