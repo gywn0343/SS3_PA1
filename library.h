@@ -1,7 +1,7 @@
 #include <string>
-#include <vector>
 #include "resource.h"
 #include "member.h"
+#include "space.h"
 #include <fstream>
 #ifndef _LIBRARY_H
 #define _LIBRARY_H
@@ -9,7 +9,7 @@ using namespace std;
 
 class Library{
 	private:
-		string result[15] = {
+		string result[16] = {
 			"Success.",
 			"Non exist resource.", //1
 			"Exeeds your possible number of borrow. Possible # of borrows: ", //2
@@ -57,7 +57,8 @@ class Library{
 		void do_space();
 		int comp(string, string);
 		void set_resource(string in, int cnt);
-		void set_info(string in, int cnt);
+		void set_resource_info(string in, int cnt);
+		void set_space_info(string in, int cnt);
 		void getInformation(string line, int op);
 	public:
 		Library();
