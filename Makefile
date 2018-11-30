@@ -14,8 +14,6 @@ resource.o: resource.cpp
 	$(CXX) $(CXXFLAGS) -c resource.cpp
 library.o: library.cpp	
 	$(CXX) $(CXXFLAGS) -c library.cpp
-space.o: space.cpp
-	$(CXX) $(CXXFLAGS) -c space.cpp
 member.o: member.cpp
 	$(CXX) $(CXXFLAGS) -c member.cpp
 clean:

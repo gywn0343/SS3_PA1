@@ -191,37 +191,7 @@ void Library::do_space()
 		print_result(ret, ret_time[0], ret_time[1], "");
 	}
 }
-void Library::set_space_info(string in, int cnt)
-{
-	switch(cnt)
-	{
-		case 0:
-			date = in;
-			return;
-		case 1:
-			space_type = in;
-			return;
-		case 2:
-			space_num = stoi(in);
-			return;
-		case 3:
-			state = in;
-			return;
-		case 4:
-			member_type = in;
-			return;
-		case 5:
-			member_name = in;
-			return;
-		case 6:
-			member_num = stoi(in);
-			return;
-		case 7:
-			time = stoi(in);
-			return;
 
-	}
-}
 void Library::set_resource(string in, int cnt)
 {
 	static string rsrc;
