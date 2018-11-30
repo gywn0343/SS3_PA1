@@ -63,7 +63,6 @@ class Library{
 	public:
 		Library();
 		
-		
 };
 
 #endif

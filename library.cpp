@@ -276,9 +276,41 @@ void Library::set_resource_info(string in, int cnt)
 			member_name = in;
 	}
 }
+void Library::set_space_info(string in, int cnt)
+{
+	switch(cnt)
+	{
+		case 0:
+			date = in;
+			return;
+		case 1:
+			space_type = in;
+			return;
+		case 2:
+			space_num = stoi(in);
+			return;
+		case 3:
+			state = in;
+			return;
+		case 4:
+			member_type = in;
+			return;
+		case 5:
+			member_name = in;
+			return;
+		case 6:
+			member_num = stoi(in);
+			return;
+		case 7:
+			time = stoi(in);
+			return;
+
+	}
+}
 
 void Library::getInformation(string line, int op)
 {
+//cout << line << endl;
 	int i;
 	int s, e;
 	s = 0;
