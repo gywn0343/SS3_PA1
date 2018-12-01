@@ -21,14 +21,13 @@ int Library::comp(string line1, string line2)
 }
 void Library::print_result(int n, int num1, int num2, string date)
 {
-	static int count = 0;
 	string filePath = "output.dat";
 
 	ofstream outFile;
 	outFile.open(filePath, ios_base::app);
 	if(outFile.is_open())
 	{
-		outFile << ++count << "	";
+		outFile << ++write_ptr << "	";
 		outFile << n << "	";
 		switch(n)
 		{
@@ -75,14 +74,13 @@ void Library::print_result(int n, int num1, int num2, string date)
 }
 void Library::print_exception(int state)
 {
-	static int count = 0;
 	string filePath = "output.dat";
 
 	ofstream outFile;
 	outFile.open(filePath, ios_base::app);
 	if(outFile.is_open())
 	{
-		outFile << ++count << "	";
+		outFile << ++write_ptr << "	";
 		outFile << "-1	";
 		switch(state)
 		{
@@ -419,6 +417,7 @@ int Library::getInformation(string line, int op)
 
 Library::Library()
 {
+	write_ptr = 0;
 	string filePath = "output.dat";
 	string filePath1, filePath2;
 	string line;

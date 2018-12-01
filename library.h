@@ -45,13 +45,14 @@ class Library{
 		Magazine Mag;
 		E_book E;
 		Seat S;
+		int write_ptr;
 		StudyRoom SR;
 		string member_name;
 		string resrc_name;
 		string date;
-		string state;  // Borrow=0 or Return=1
-		string resrc_type;  // Book=1 or others
-		string member_type; // Under or others
+		string state; 
+		string resrc_type;  
+		string member_type; 
 		void get_class();
 		int LOAN_PERIOD;
 		int B_NUM;
