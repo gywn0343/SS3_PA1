@@ -73,6 +73,35 @@ void Library::print_result(int n, int num1, int num2, string date)
 		outFile.close();
 	}
 }
+void Library::print_exception(int state)
+{
+	static int count = 0;
+	string filePath = "output.dat";
+
+	ofstream outFile;
+	outFile.open(filePath, ios_base::app);
+	if(outFile.is_open())
+	{
+		outFile << ++count << "	";
+		outFile << "-1	";
+		switch(state)
+		{
+			case DATE_EXCP:
+				outFile << exception[DATE_EXCP] << endl; return;
+			case SPACE_TYPE_EXCP:
+				outFile << exception[SPACE_TYPE_EXCP] << endl; return;
+			case OPERATION_EXCP:
+				outFile << exception[OPERATION_EXCP] << endl; return;
+			case MEMBER_TYPE_EXCP:
+				outFile << exception[MEMBER_TYPE_EXCP] << endl; return;
+			case MEMBER_NAME_EXCP:
+				outFile << exception[MEMBER_NAME_EXCP] << endl; return;
+			case TIME_EXCP:
+				outFile << exception[TIME_EXCP] << endl; return;
+		}
+		outFile.close();
+	}
+}
 void Library::get_class()
 {
 	if(member_type == "Undergraduate") 
@@ -223,69 +252,141 @@ void Library::set_resource(string in, int cnt)
 	}
 }
 
-void Library::set_resource_info(string in, int cnt)
+int Library::set_resource_info(string in, int cnt)
 {
 	switch(cnt)
 	{
 		case 0:
 			date = in;
-			return;
+			return 0;
 		case 1:
 			resrc_type = in;
-			return;
+			return 0;
 		case 2:
 			resrc_name = in;
-			return;
+			return 0;
 		case 3:
 			state = in;
-			return;
+			return 0;
 		case 4:
 			member_type = in;
-			return;
+			return 0;
 		case 5:
 			member_name = in;
+			return 0;
 	}
 }
 
-void Library::set_space_info(string in, int cnt)
+void Library::check_date_range(string in)
 {
+	string comp = "09/12/30";
+	int i;
+	for(i=0;i<in.size();i++)
+	{
+		if(comp.at(i) == in.at(i)) continue;
+		else if(comp.at(i) < in.at(i)) return;
+		else throw in;
+	}
+	
+}
+void Library::check_member_excp(string in)
+{
+	int i;
+	for(i=0;i<in.size();i++)
+	{
+		if(in.at(i) >= '0' && in.at(i) <= '9') throw in;
+	}
+	
+}
+int Library::set_space_info(string in, int cnt, int error)
+{
+	if(error > 0) return 1;
 	switch(cnt)
 	{
 		case 0:
-			date = in;
-			return;
+			try{
+				check_date_range(in.substr(2, 8));
+				date = in;
+			}
+			catch(string s)
+			{
+				print_exception(DATE_EXCP);
+				return 1;
+			}
+			return 0;
 		case 1:
-			space_type = in;
-			return;
+			try{
+				if(!(in=="Seat" || in=="StudyRoom")) throw in;
+				space_type = in;
+			}
+			catch(string s)
+			{
+				print_exception(SPACE_TYPE_EXCP);
+				return 1;
+			}
+			return 0;
 		case 2:
 			space_num = stoi(in);
-			return;
+			return 0;
 		case 3:
-			state = in;
-			return;
+			try{
+				if(!(in=="B" || in=="R" || in=="E" || in=="C")) throw in;
+				state = in;
+			}
+			catch(string s)
+			{
+				print_exception(OPERATION_EXCP);
+				return 1;
+			}
+			return 0;
 		case 4:
-			member_type = in;
-			return;
+			try{
+				if(!(in=="Undergraduate" || in=="Fadulty" || in=="Graduate")) throw in;
+				member_type = in;
+			}
+			catch(string s)
+			{
+				print_exception(MEMBER_TYPE_EXCP);
+				return 1;
+			}
+			return 0;
 		case 5:
-			member_name = in;
-			return;
+			try{
+				check_member_excp(in);
+				member_name = in;
+			}
+			catch(string s)
+			{
+				print_exception(MEMBER_NAME_EXCP);
+				return 1;
+			}
+			return 0;
 		case 6:
 			member_num = stoi(in);
-			return;
+			return 0;
 		case 7:
-			time = stoi(in);
-			return;
+			try{
+				if(in.at(0) == '-') throw in;
+				time = stoi(in);
+			}
+			catch(string s)
+			{
+				print_exception(TIME_EXCP);
+				return 1;
+			}
+			return 0;
 
 	}
 }
 
-void Library::getInformation(string line, int op)
+int Library::getInformation(string line, int op)
 {
-//cout << line << endl;
 	int i;
 	int s, e;
 	s = 0;
 	int cnt = 0;
+	int ret;
+	int error = 0;
 	for(i=0;i<line.size();i++)
 	{
 		if(line.at(i) == '\t') 
@@ -294,7 +395,10 @@ void Library::getInformation(string line, int op)
 			if(op == 1)
 				set_resource_info(line.substr(s, e-s+1), cnt++);
 			else if(op == 2)
-				set_space_info(line.substr(s, e-s+1), cnt++);
+			{
+				ret += set_space_info(line.substr(s, e-s+1), cnt++, error);	
+				error = ret;
+			}
 			else
 				set_resource(line.substr(s, e-s+1), cnt++);
 			s = i+1;
@@ -306,10 +410,11 @@ void Library::getInformation(string line, int op)
 	}
 	else if(op == 2)
 	{
-		set_space_info(line.substr(s, i-s+1), cnt);
+		ret += set_space_info(line.substr(s, i-s+1), cnt, error);
 	}
 	else
 		set_resource(line.substr(s, i-s+1), cnt);
+	return ret;
 }
 
 Library::Library()
@@ -343,7 +448,7 @@ Library::Library()
 
 	int flag1 = 0;
 	int flag2 = 0;
-	int ret;
+	int ret, ret_val;
 	cnt1 = 0;
 	if(openFile2.is_open() && openFile1.is_open())
 	{
@@ -369,16 +474,18 @@ Library::Library()
 			{                               // flag == 1
 				if(flag2 == 0) flag2 = 1;   // not operated -> so you cannot read next line
 				
-				getInformation(line1, 1);
-				do_resource();
+				ret_val = getInformation(line1, 1);
+				if(ret_val == 0) 
+					do_resource();
 				flag1 = 0;                  // flag == 0 -> read next line
 			}
 			else if(ret == 2 || flag1 == 2)
 			{
 				if(flag1 == 0) flag1 = 1;
 				
-				getInformation(line2, 2);
-				do_space();
+				ret_val = getInformation(line2, 2);
+				if(ret_val == 0)
+					do_space();
 				flag2 = 0;
 			}
 		}
