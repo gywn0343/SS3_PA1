@@ -285,7 +285,6 @@ int Magazine::check_month(string B, string _date, string month)
 	int n_month = stoi(_date.substr(3, 2));
 	int b_year = stoi(month.substr(0, 2));
 	int b_month = stoi(month.substr(3, 2));
-cout << B << _date << " "<< month << endl;
 	if(B == "R")
 	{
 		list<INFO>::iterator iter = data.at(location).begin();
