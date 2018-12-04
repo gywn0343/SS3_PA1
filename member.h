@@ -11,6 +11,7 @@ typedef struct M_INFO{
 	int b_num;
 	string restrict_due;
 	list<E_INFO> e_info;
+	list<string> due;
 	int cap;
 }M_INFO;
 class Member{
@@ -28,6 +29,7 @@ class Member{
 		void get_member(string _name);  
 		bool isOverCapacity(int C, int);
 		void update_ebook(string);
+		int isOverdue(string s);
 		virtual int do_op(string, string, string, string&, string, int) = 0;
 };
 

@@ -118,11 +118,21 @@ bool Member::isRestricted(string _date)
 	if(ret > 0) return 0;
 	else return 1;
 }
+int Member::isOverdue(string now)
+{
+	list<string>::iterator it = data.at(location).due.begin();
+	for(;it != data.at(location).due.end();++it)
+	{
+		if(comp(now, *it) > 0) return 1;
+	}
+	return 0;
+}
 void Member::final_state(string B, string resrc_type, int size, string due)
 {
 	if(B == "B")
 	{
 		data.at(location).b_num += 1;
+		data.at(location).due.push_back(due);
 		if(resrc_type == "E-book") 
 		{
 			E_INFO tmp;
@@ -135,7 +145,28 @@ void Member::final_state(string B, string resrc_type, int size, string due)
 		}
 	}
 	else
+	{
 		data.at(location).b_num -= 1;
+		list<string>::iterator it = data.at(location).due.begin();
+		for(;it != data.at(location).due.end();++it)
+		{
+			if(*it == due) data.at(location).due.erase(it);
+		}
+		if(resrc_type == "E-book") 
+		{
+			list<E_INFO>::iterator iter = data.at(location).e_info.begin();
+			for(;iter != data.at(location).e_info.end();iter++)
+			{
+				if(iter->size == size)
+				{
+					data.at(location).e_info.erase(iter);
+					break;
+				}
+			}
+			data.at(location).cap -= size;
+			data.at(location).b_num--;
+		}
+	}
 }
 Under::Under()
 {
@@ -190,7 +221,7 @@ int Under::do_op(string B, string _name, string _date, string& ret_date, string 
 		{
 			if(isOverCapacity(capacity, size)) return 15;
 		}
-
+		if(isOverdue(_date)) return 16;
 		return 0;
 	}
 	else return 0;
@@ -215,6 +246,7 @@ int Faculty::do_op(string B, string _name, string _date, string& ret_date, strin
 		{
 			if(isOverCapacity(capacity, size)) return 15;
 		}
+		if(isOverdue(_date)) return 16;
 		return 0;
 	}
 	else return 0;
@@ -239,6 +271,7 @@ int Graduate::do_op(string B, string _name, string _date, string& ret_date, stri
 		{
 			if(isOverCapacity(capacity, size)) return 15;
 		}
+		if(isOverdue(_date)) return 16;
 		return 0;
 	}
 	else return 0;

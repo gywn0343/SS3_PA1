@@ -68,6 +68,8 @@ void Library::print_result(int n, int num1, int num2, string date)
 				outFile << result[14] << num1 << "." << endl; return;
 			case 15:
 				outFile << result[15] << endl; return;
+			case 16:
+				outFile << result[16] << endl; return;
 		}
 		outFile.close();
 	}
@@ -137,35 +139,36 @@ void Library::do_resource()
 	string d_day;
 
 	ret1 = R->do_op(state, resrc_name, member_name, date, ret_date1, ebook_size, d_day, LOAN_PERIOD);
-	if(ret1 == 1)  // no kind of resources in here
+	if(ret1 == 1)  // no kind of resources in here B
 	{
 		print_result(1, 0, 0, "");
+		return;
+	}
+	if(ret1 == 3)  // you never borrowed R
+	{
+		print_result(3, 0, 0, "");
 		return;
 	}
 
 	ret2 = M->do_op(state, member_name, date, ret_date2, resrc_type, ebook_size);
 
-	if(ret2 == 2)  // borrow # exceeded
+	if(ret2 == 2)  // borrow # exceeded B
 	{
 		print_result(2, B_NUM, 0, "");
 		return;
 	}
-	if(ret1 == 3)  // you never borrowed
-	{
-		print_result(3, 0, 0, "");
-		return;
-	}
-	if(ret1 == 4)  // you already borrowed
+
+	if(ret1 == 4)  // you already borrowed B
 	{
 		print_result(4, 0, 0, ret_date1);
 		return;
 	}
-	if(ret1 == 5)  // other people borrowed
+	if(ret1 == 5)  // other people borrowed B
 	{
 		print_result(5, 0, 0, ret_date1);
 		return;
 	}
-	if(ret2 == 6)  // you are restricted
+	if(ret2 == 6)  // you are restricted B
 	{
 		print_result(6, 0, 0, ret_date2);
 		return;
@@ -180,7 +183,7 @@ void Library::do_resource()
 		print_result(7, 0, 0, ret_date1);
 		return;
 	}
-	if(ret2 == 0 || ret1 == 7)  // success or delayed return
+	if(ret2 == 0)  // success 
 	{
 		if(state == "B")
 		{
@@ -197,7 +200,12 @@ void Library::do_resource()
 		return;
 	}
 	if(ret2 == 15)
+	{
 		print_result(15, 0, 0, "");
+		return;
+	}
+	if(ret2 == 16)
+		print_result(16, 0, 0, "");
 		
 }
 void Library::do_space()

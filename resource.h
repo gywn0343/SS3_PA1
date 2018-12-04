@@ -47,7 +47,7 @@ class Magazine : public Resource{
 		vector<list<INFO>> data;
 		string month_rec;
 		int isAvailable(string member_name, string _date, string& ret_date, string month);
-		int check_month(string, string);
+		int check_month(string, string, string);
 	public:
 		void add_resource(string _name, int s);
 		void final_state(bool in, int due, string member_name, string _date);

@@ -10,7 +10,7 @@ enum {DATE_EXCP, SPACE_TYPE_EXCP, OPERATION_EXCP, MEMBER_TYPE_EXCP, MEMBER_NAME_
 
 class Library{
 	private:
-		string result[16] = {
+		string result[17] = {
 			"Success.",
 			"Non exist resource.", //1
 			"Exeeds your possible number of borrow. Possible # of borrows: ", //2
@@ -26,7 +26,8 @@ class Library{
 			"Exceed available number.", // 12
 			"Exceed available time.", // 13
 			"There is no remain space. This space is available after ", // 14
-			"Exceeds your storage capacity." // 15
+			"Exceeds your storage capacity.", // 15
+			"Previously borrowed books are overdue, so borrow is limited."
 		};
 		string exception[6] = {
 			"Date out of range",

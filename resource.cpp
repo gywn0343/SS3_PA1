@@ -163,11 +163,26 @@ void Book::final_state(bool in, int due, string member_name, string _date)
 }
 void E_book::final_state(bool in, int due, string member_name, string _date)
 {
-
-	INFO tmp;
-	tmp.mem_name = member_name;
-	set_date(_date, due, tmp.date, tmp.due_date);
-	data.at(location).push_back(tmp);
+	if(in == false)
+	{
+		INFO tmp;
+		tmp.mem_name = member_name;
+		set_date(_date, due, tmp.date, tmp.due_date);
+		data.at(location).push_back(tmp);
+	}
+	else
+	{
+		list<INFO>::iterator iter;
+		
+		for(iter = data.at(location).begin();iter != data.at(location).end();++iter)
+		{
+			if(iter->mem_name == member_name)
+			{
+				iter = data.at(location).erase(iter);
+				iter--;
+			}
+		}
+	}
 }
 void Magazine::final_state(bool in, int due, string member_name, string _date)
 {
@@ -229,25 +244,6 @@ int Book::do_op(string B, string _name, string mem_name, string now, string &ret
 	return 0;
 }
 
-void E_book::flush_ebook(string now)
-{
-	list<INFO>::iterator iter;
-
-	int i;
-	for(i=0;i<data.size();i++)
-	{
-		for(iter = data.at(i).begin();iter != data.at(i).end();++iter)
-		{
-			if(iter->due_date == "") continue;
-			if(isLate(now, iter->due_date))
-			{
-				iter = data.at(i).erase(iter);
-				iter--;
-			}
-		}
-	}
-
-}
 int E_book::do_op(string B, string _name, string mem_name, string now, string &ret_date, int& _size, string& d_day, int due)
 {
 	int ret, i;
@@ -257,21 +253,45 @@ int E_book::do_op(string B, string _name, string mem_name, string now, string &r
 
 	flush_ebook(now);
 
-	ret = isAvailable(mem_name, now, ret_date);
-	if(ret == 4) return ret; 
-
-	_size = size.at(location);
-	string tmp;
-	set_date(now, due, tmp, d_day);
+	if(B == "B")
+	{
+		ret = isAvailable(mem_name, now, ret_date);
+		if(ret == 4) return ret; 
+	
+		_size = size.at(location);
+		string tmp;
+		set_date(now, due, tmp, d_day);
+	}
+	else
+	{
+		list<INFO>::iterator iter;
+		for(iter = data.at(location).begin();iter != data.at(location).end();++iter)
+		{
+			if(iter->mem_name == mem_name)
+			{
+				return 0;
+			}
+		}
+		return 3;
+	}
 	return 0;
 }
 
-int Magazine::check_month(string _date, string month)
+int Magazine::check_month(string B, string _date, string month)
 {
 	int n_year = stoi(_date.substr(0, 2));
 	int n_month = stoi(_date.substr(3, 2));
 	int b_year = stoi(month.substr(0, 2));
 	int b_month = stoi(month.substr(3, 2));
+	if(B == "R")
+	{
+		list<INFO>::iterator iter = data.at(location).begin();
+		for(;iter != data.at(location).end();++iter)
+		{
+			if(month == iter->month)
+				return 0;
+		}
+	}
 
 	if(n_year < b_year)
 		return 1;          // no such month's magazine (requesting future mag)
@@ -280,6 +300,7 @@ int Magazine::check_month(string _date, string month)
 		if(n_year == b_year + 1)	
 		{
 			if(n_month > b_month) return 1; // req expired mag
+			else return 0;
 		}
 		else return 1; // requesting expired magazine
 	}
@@ -287,6 +308,7 @@ int Magazine::check_month(string _date, string month)
 	{
 		if(n_month < b_month) // requesting future mag
 			return 1;
+		else return 0;
 	}
 }
 int Magazine::do_op(string B, string _name, string mem_name, string now, string &ret_date, int& _size, string& d_day, int due)
@@ -304,7 +326,7 @@ int Magazine::do_op(string B, string _name, string mem_name, string now, string 
 	string month = _name.substr(s + 1, e - s - 1);
 
 	month_rec = month;
-	ret = check_month(now, month);
+	ret = check_month(B, now, month); // if this resource is not returned, we cannot flush it -> check state, too
 	if(ret == 1) return ret;
 
 	_name = _name.substr(0, s);
@@ -335,5 +357,24 @@ int Magazine::do_op(string B, string _name, string mem_name, string now, string 
 
 
 
+void E_book::flush_ebook(string now)
+{
+	list<INFO>::iterator iter;
+
+	int i;
+	for(i=0;i<data.size();i++)
+	{
+		for(iter = data.at(i).begin();iter != data.at(i).end();++iter)
+		{
+			if(iter->due_date == "") continue;
+			if(isLate(now, iter->due_date))
+			{
+				iter = data.at(i).erase(iter);
+				iter--;
+			}
+		}
+	}
+
+}
 
 
