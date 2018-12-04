@@ -123,6 +123,7 @@ int Member::isOverdue(string now)
 	list<string>::iterator it = data.at(location).due.begin();
 	for(;it != data.at(location).due.end();++it)
 	{
+		if(*it == "") continue;
 		if(comp(now, *it) > 0) return 1;
 	}
 	return 0;
@@ -150,7 +151,11 @@ void Member::final_state(string B, string resrc_type, int size, string due)
 		list<string>::iterator it = data.at(location).due.begin();
 		for(;it != data.at(location).due.end();++it)
 		{
-			if(*it == due) data.at(location).due.erase(it);
+			if(*it == due) 
+			{
+				data.at(location).due.erase(it);
+				break;
+			}
 		}
 		if(resrc_type == "E-book") 
 		{
@@ -230,7 +235,7 @@ int Under::do_op(string B, string _name, string _date, string& ret_date, string 
 int Faculty::do_op(string B, string _name, string _date, string& ret_date, string resrc_type, int size)
 {
 	int ret;
-
+cout << _name << _date << resrc_type<< endl;
 	get_member(_name);
 	if(size > 0) update_ebook(_date);
 	if(B == "B")

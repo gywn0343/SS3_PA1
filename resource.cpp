@@ -227,11 +227,13 @@ int Resource::isLate(string a, string b) // is 'a' late than 'b' ? a > b ?
 int Book::do_op(string B, string _name, string mem_name, string now, string &ret_date, int& size, string& d_day, int due)
 {
 	int ret;
+	string tmp;
 	if((ret = isInLibrary(_name)) == -1) return 1;
 	else location = ret;
 	if(B == "B")
 	{
 		ret = isAvailable(mem_name, now, ret_date);
+		set_date(now, due, tmp, d_day);
 		if(ret == 4 || ret == 5) return ret; 
 	}
 	else 
@@ -283,6 +285,7 @@ int Magazine::check_month(string B, string _date, string month)
 	int n_month = stoi(_date.substr(3, 2));
 	int b_year = stoi(month.substr(0, 2));
 	int b_month = stoi(month.substr(3, 2));
+cout << B << _date << " "<< month << endl;
 	if(B == "R")
 	{
 		list<INFO>::iterator iter = data.at(location).begin();
@@ -315,6 +318,7 @@ int Magazine::do_op(string B, string _name, string mem_name, string now, string 
 {
 	int ret;
 	int s, e;
+	string tmp;
 	string s_b = "[";
 	string e_b = "]";
 	s = _name.find(s_b);
@@ -337,6 +341,7 @@ int Magazine::do_op(string B, string _name, string mem_name, string now, string 
 	int i;
 	if(B == "B")
 	{
+		set_date(now, due, tmp, d_day);
 		ret = isAvailable(mem_name, now, ret_date, month);
 		if(ret == 4 || ret == 5) return ret; 
 	}
