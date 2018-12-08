@@ -1,17 +1,27 @@
 #!/bin/bash
 
 echo $1 $2 $3
-if [ "$1" == "resource" ] && [ "$2" != "all" ]; 
+if [ "$1" == "resource" ]; 
 then
 	#if [ $2="all"]
 	#then
-	cat $1.dat | grep -w 'Type' > tmp.dat
-	cat $1.dat | grep -w $2 >> tmp.dat
-	mkdir -p resource
-	mv -f tmp.dat ./resource
-	cd ./resource
-	mv tmp.dat $2.dat
-	cd ..
+	x="Book"
+	y="E-book"
+	z="Magazine"
+	for comp in $x $y $z
+	do
+		echo $comp    $2
+		if [ "$2" == "all" ] || [ "$2" == "$comp" ]
+		then
+			cat $1.dat | grep -w 'Type' > tmp.dat
+			cat $1.dat | grep -w $comp >> tmp.dat
+			mkdir -p resource
+			mv -f tmp.dat ./resource
+			cd ./resource
+			mv tmp.dat $comp.dat
+			cd ..
+		fi
+	done
 fi
 if [ "$1" == "input" ] && ["$2" != "all"];
 then
@@ -74,4 +84,6 @@ then
 		done < output.dat
 		echo -e $x' \t'$cnt >> stat_table.dat
 	done
+	rm output.dat
+	cd ..
 fi
