@@ -11,10 +11,10 @@ then
 	for comp in $x $y $z
 	do
 		echo $comp    $2
-		if [ "$2" == "all" ] || [ "$2" == "$comp" ]
+		if [ "$2" == "all" ] || [ "$2" == "$comp" ];
 		then
 			cat $1.dat | grep -w 'Type' > tmp.dat
-			cat $1.dat | grep -w $comp >> tmp.dat
+			cat $1.dat | grep -w '\t'$comp'\t' >> tmp.dat
 			mkdir -p resource
 			mv -f tmp.dat ./resource
 			cd ./resource
@@ -22,48 +22,70 @@ then
 			cd ..
 		fi
 	done
-fi
-if [ "$1" == "input" ] && ["$2" != "all"];
+elif [ "$1" == "input" ] || [ "$1" == "space" ];
 then
-	x="resource.dat"
-	y="space.dat"
-	target="input"
-	option=$2
-elif [ "$1" == "space" ] && [ "$2" != "all" ]
-then
-	x="input.dat"
-	y="resource.dat"
-	target="space"
-	option=$2
-	if [ "$3" != '' ] && [ "$3" != 'all' ] && [ "$4" == '' ];
+	if [ "$1" == "input" ];
 	then
-		option=$2'\t'$3
+		x="resource.dat"
+		y="space.dat"
+		target="input"
+		option=$2
+	elif [ "$1" == "space" ];
+	then
+		x="input.dat"
+		y="resource.dat"
+		target="space"
+		option=$2
 	fi
 	make
-	cat $1.dat | grep -w 'Date' > tmp.dat
-	cat $1.dat | grep -P $option >> tmp.dat
-	mkdir -p tmp_dir
-	mkdir -p $target
-	cp -f tmp.dat ./$target
-	cd ./$target
-	mv tmp.dat $2.dat
-	cd ..
-	mv -f tmp.dat ./tmp_dir
-	mv -f ./lib ./tmp_dir
-	cp -f $x $y ./tmp_dir
-	cd ./tmp_dir
-	mv tmp.dat $target.dat
-	./lib
-	cp -f output.dat ..
-	rm *
-	cd ..
-	#mkdir -p output
-	#mv -f output.dat output
-	rmdir tmp_dir
-#	fi
+	for comp in Faculty Undergraduate Graduate Seat StudyRoom Book E-book Magazine
+	do
+echo $comp    $2
+		if [ "$1" == "input" ] 
+		then
+			if [ "$comp" == "Seat" ] || [ "$comp" == "StudyRoom" ]
+			then
+				continue
+			fi
+		elif [ "$1" == "space" ]
+		then
+			if [ "$comp" == "Book" ] || [ "$comp" == "E-book" ] || [ "$comp" == "Magazine" ]
+			then 
+				continue
+			fi
+		fi
+		if [ "$2" == "all" ] || [ "$2" == "$comp" ];
+		then
+			if [ "$3" != '' ] && [ "$3" != 'all' ] && [ "$4" == '' ];
+			then
+				option=$2'\t'$3
+			fi
+			cat $1.dat | grep -w Member_type > tmp.dat
+			cat $1.dat | grep -P '\t'$comp'\t' >> tmp.dat
+			mkdir -p tmp_dir
+			mkdir -p $target
+			cp -f tmp.dat ./$target
+			cd ./$target
+			mv tmp.dat $comp.dat
+			cd ..
+			mv -f tmp.dat ./tmp_dir
+			cp -f ./lib ./tmp_dir
+			cp -f $x $y ./tmp_dir
+			cd ./tmp_dir
+			mv tmp.dat $target.dat
+			./lib
+			cp -f output.dat ..
+			rm *
+			cd ..
+			mkdir -p output
+			cp -f output.dat output
+			rmdir tmp_dir
+		fi
+	done
 fi
 
-if [ "$1" == "output" ]
+
+if [ "$1" == "output" ];
 then
 	mkdir -p output
 	cp -f output.dat ./output
@@ -74,10 +96,10 @@ then
 		cnt=0
 		while read N R Des
 		do
-			if [ "$R" == "Return_code" ]
+			if [ "$R" == "Return_code" ];
 			then
 				continue
-			elif [ $R -eq $x ]
+			elif [ $R -eq $x ];
 			then
 				((cnt++))
 			fi
