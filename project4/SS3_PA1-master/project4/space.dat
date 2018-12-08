@@ -1,0 +1,10 @@
+Date[yy/mm/dd/hh]	Space_type	Space_number	Operation	Member_type	Member_name	Number_of_member	Time
+2009/03/01/09	StudyRoom	1	B	Undergraduate	Tom	4	3
+2018/11/01/10	Seat1	4	B	Undergraduate	BruceLee	1	3
+2018/11/02/06	Seat	3	G	Undergraduate	BruceLee	1	3
+2018/11/02/10	StudyRoom	1	R	Undergraduate1	Tom
+2018/11/02/11	Seat	1	B	Undergraduate	Br3uceLee	1	2
+2018/11/02/12	Seat	2	B	Graduate	BruceLee	1	-10
+2018/11/02/20	StudyRoom	3	R	Undergraduate1	Tom
+2018/11/02/20	StudyRoom	4	R	Undergraduate1	Tom
+2018/11/02/20	StudyRoom	10	R	Faculty	Tom

@@ -4,17 +4,17 @@ option=$2
 tmp=$(echo ${option:0:1} | tr [:lower:] [:upper:])
 option=$tmp${option:1}
 
-if [ "$1" == "resource" ]; 
+mkdir -p result
+if [ "$1" == "resource" ] || [ "$option" == "Book" ] || [ "$option" == "E-book" ] || [ "$option" == "Magazine" ]; 
 then
-	x="Book"
-	y="E-book"
-	z="Magazine"
-	for comp in $x $y $z
+	cp -f resource.dat result
+	cd ./result
+	for comp in Book E-book Magazine
 	do
 		if [ "$2" == "all" ] || [ "$option" == "$comp" ];
 		then
-			cat $1.dat | grep -w 'Type' > tmp.dat
-			cat $1.dat | grep -P $comp'\t' >> tmp.dat
+			cat resource.dat | grep -w 'Type' > tmp.dat
+			cat resource.dat | grep -P $comp'\t' >> tmp.dat
 			mkdir -p resource
 			mv -f tmp.dat ./resource
 			cd ./resource
@@ -24,8 +24,10 @@ then
 			cd ..
 		fi
 	done
-	exit 1
-elif [ "$2" == "date" ]
+	rm resource.dat
+	cd ..
+fi
+if [ "$2" == "date" ]
 then
 		start_y=$(echo $3 | cut -d'/' -f 1)
 		start_m=$(echo $3 | cut -d'/' -f 2)
@@ -86,11 +88,6 @@ then
 	fi
 	make
 	mkdir -p tmp_dir
-	mkdir -p $target
-	cp -f tmp.dat ./$target
-	cd ./$target
-	mv tmp.dat date.dat
-	cd ..
 	mv -f tmp.dat ./tmp_dir
 	cp -f ./lib ./tmp_dir
 	cp -f $x.dat $y.dat ./tmp_dir
@@ -100,9 +97,15 @@ then
 	cp -f output.dat ..
 	rm *
 	cd ..
-	#mkdir -p output
-	#cp -f output.dat ./output
 	rmdir tmp_dir
+	mkdir -p result/$target
+	mv -f output.dat ./result/$target
+	cd ./result/$target
+	mv -f output.dat date.dat
+	cd ..
+	cd ..
+	make clean
+exit 1
 
 elif [ "$1" == "input" ] || [ "$1" == "space" ];
 then
@@ -143,20 +146,24 @@ echo $option
 				comp=$comp'\t'$3
 			fi
 			cat $1.dat | grep -w Member_type > tmp.dat
-			if [ "$option" == "Studyroom" ]
+			if [ "$fileName" == "Studyroom" ]
 			then
 				cat $1.dat | grep -i -P '\t'$comp'\t' >> tmp.dat
 			else
 				cat $1.dat | grep -P '\t'$comp'\t' >> tmp.dat
 			fi
 			mkdir -p tmp_dir
-			mkdir -p $target
-			cp -f tmp.dat ./$target
-			cd ./$target
 			tmp=$(echo ${fileName:0:1} | tr [:upper:] [:lower:])
 			fileName=$tmp${fileName:1}
-			mv tmp.dat $fileName.dat
-			cd ..
+			#if [ "$comp" == "Book" ] || [ "$comp" == "E-book" ] || [ "$comp" == "Magazine" ]
+			#then
+			#	mkdir -p result/resource
+			#	cp -f tmp.dat ./result/resource
+			#	cd ./result/resource
+			#	mv -f tmp.dat $fileName.dat
+			#	cd ..
+			#	cd ..
+			#fi
 			mv -f tmp.dat ./tmp_dir
 			cp -f ./lib ./tmp_dir
 			cp -f $x $y ./tmp_dir
@@ -167,15 +174,24 @@ echo $option
 			rm *
 			cd ..
 			rmdir tmp_dir
+			mkdir -p result/$target
+			mv -f output.dat ./result/$target
+			cd ./result/$target
+			mv -f output.dat $fileName.dat
+			cd ..
+			cd ..
 		fi
 	done
-fi
-
-
-	mkdir -p output
-	cp -f output.dat ./output
-	cd ./output
-	echo -e Return_code' \t'Number > stat_table.dat
+	make clean
+	exit 1
+elif [ "$1" == "output" ]
+then
+	make
+	./lib
+	mkdir -p result/output
+	mv -f output.dat ./result/output
+	cd ./result/output
+	echo -e Return_code'\t'Number > stat_table.dat
 	for x in -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 	do
 		cnt=0
@@ -191,7 +207,8 @@ fi
 		done < output.dat
 		echo -e $x' \t'$cnt >> stat_table.dat
 	done
-	#rm output.dat
+	rm output.dat
+	cd ..
 	cd ..
 	make clean
-	rm output.dat
+fi
