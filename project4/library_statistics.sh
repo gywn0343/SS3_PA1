@@ -1,10 +1,8 @@
 #!/bin/bash
 
-echo $1 $2 $3
 option=$2
 tmp=$(echo ${option:0:1} | tr [:lower:] [:upper:])
 option=$tmp${option:1}
-echo $option
 
 if [ "$1" == "resource" ]; 
 then
@@ -108,6 +106,8 @@ then
 
 elif [ "$1" == "input" ] || [ "$1" == "space" ];
 then
+
+echo $option
 	if [ "$1" == "input" ];
 	then
 		x="resource.dat"
@@ -137,12 +137,13 @@ then
 		fi
 		if [ "$2" == "all" ] || [ "$option" == "$comp" ];
 		then
+			fileName=$comp
 			if [ "$3" != '' ] && [ "$3" != 'all' ] && [ "$4" == '' ];
 			then
 				comp=$comp'\t'$3
 			fi
 			cat $1.dat | grep -w Member_type > tmp.dat
-			if [ "$comp" == "Studyroom" ]
+			if [ "$option" == "Studyroom" ]
 			then
 				cat $1.dat | grep -i -P '\t'$comp'\t' >> tmp.dat
 			else
@@ -152,9 +153,9 @@ then
 			mkdir -p $target
 			cp -f tmp.dat ./$target
 			cd ./$target
-			tmp=$(echo ${comp:0:1} | tr [:upper:] [:lower:])
-			comp=$tmp${comp:1}
-			mv tmp.dat $comp.dat
+			tmp=$(echo ${fileName:0:1} | tr [:upper:] [:lower:])
+			fileName=$tmp${fileName:1}
+			mv tmp.dat $fileName.dat
 			cd ..
 			mv -f tmp.dat ./tmp_dir
 			cp -f ./lib ./tmp_dir
