@@ -347,7 +347,7 @@ int Library::set_space_info(string in, int cnt, int error)
 			return 0;
 		case 4:
 			try{
-				if(!(in=="Undergraduate" || in=="Fadulty" || in=="Graduate")) throw in;
+				if(!(in=="Undergraduate" || in=="Faculty" || in=="Graduate")) throw in;
 				member_type = in;
 			}
 			catch(string s)

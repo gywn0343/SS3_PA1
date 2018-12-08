@@ -1,6 +1,11 @@
 #!/bin/bash
 
 echo $1 $2 $3
+option=$2
+tmp=$(echo ${option:0:1} | tr [:lower:] [:upper:])
+option=$tmp${option:1}
+echo $option
+
 if [ "$1" == "resource" ]; 
 then
 	x="Book"
@@ -8,13 +13,15 @@ then
 	z="Magazine"
 	for comp in $x $y $z
 	do
-		if [ "$2" == "all" ] || [ "$2" == "$comp" ];
+		if [ "$2" == "all" ] || [ "$option" == "$comp" ];
 		then
 			cat $1.dat | grep -w 'Type' > tmp.dat
 			cat $1.dat | grep -P $comp'\t' >> tmp.dat
 			mkdir -p resource
 			mv -f tmp.dat ./resource
 			cd ./resource
+			tmp=$(echo ${comp:0:1} | tr [:upper:] [:lower:])
+			comp=$tmp${comp:1}
 			mv tmp.dat $comp.dat
 			cd ..
 		fi
@@ -106,20 +113,18 @@ then
 		x="resource.dat"
 		y="space.dat"
 		target="input"
-		option=$2
 	elif [ "$1" == "space" ];
 	then
 		x="input.dat"
 		y="resource.dat"
 		target="space"
-		option=$2
 	fi
 	make
-	for comp in Faculty Undergraduate Graduate Seat StudyRoom Book E-book Magazine
+	for comp in Faculty Undergraduate Graduate Seat Studyroom Book E-book Magazine
 	do
 		if [ "$1" == "input" ] 
 		then
-			if [ "$comp" == "Seat" ] || [ "$comp" == "StudyRoom" ]
+			if [ "$comp" == "Seat" ] || [ "$comp" == "Studyroom" ]
 			then
 				continue
 			fi
@@ -130,18 +135,25 @@ then
 				continue
 			fi
 		fi
-		if [ "$2" == "all" ] || [ "$2" == "$comp" ];
+		if [ "$2" == "all" ] || [ "$option" == "$comp" ];
 		then
 			if [ "$3" != '' ] && [ "$3" != 'all' ] && [ "$4" == '' ];
 			then
-				option=$2'\t'$3
+				comp=$comp'\t'$3
 			fi
 			cat $1.dat | grep -w Member_type > tmp.dat
-			cat $1.dat | grep -P '\t'$comp'\t' >> tmp.dat
+			if [ "$comp" == "Studyroom" ]
+			then
+				cat $1.dat | grep -i -P '\t'$comp'\t' >> tmp.dat
+			else
+				cat $1.dat | grep -P '\t'$comp'\t' >> tmp.dat
+			fi
 			mkdir -p tmp_dir
 			mkdir -p $target
 			cp -f tmp.dat ./$target
 			cd ./$target
+			tmp=$(echo ${comp:0:1} | tr [:upper:] [:lower:])
+			comp=$tmp${comp:1}
 			mv tmp.dat $comp.dat
 			cd ..
 			mv -f tmp.dat ./tmp_dir
@@ -181,4 +193,4 @@ fi
 	#rm output.dat
 	cd ..
 	make clean
-	rm stat_table.dat output.dat
+	rm output.dat
