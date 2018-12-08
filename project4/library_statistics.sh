@@ -3,8 +3,6 @@
 echo $1 $2 $3
 if [ "$1" == "resource" ]; 
 then
-	#if [ $2="all"]
-	#then
 	x="Book"
 	y="E-book"
 	z="Magazine"
@@ -13,7 +11,7 @@ then
 		if [ "$2" == "all" ] || [ "$2" == "$comp" ];
 		then
 			cat $1.dat | grep -w 'Type' > tmp.dat
-			cat $1.dat | grep -w '\t'$comp'\t' >> tmp.dat
+			cat $1.dat | grep -P $comp'\t' >> tmp.dat
 			mkdir -p resource
 			mv -f tmp.dat ./resource
 			cd ./resource
@@ -21,6 +19,7 @@ then
 			cd ..
 		fi
 	done
+	exit 1
 elif [ "$2" == "date" ]
 then
 		start_y=$(echo $3 | cut -d'/' -f 1)
@@ -154,16 +153,12 @@ then
 			cp -f output.dat ..
 			rm *
 			cd ..
-			#mkdir -p output
-			#cp -f output.dat output
 			rmdir tmp_dir
 		fi
 	done
 fi
 
 
-#if [ "$1" == "output" ];
-#then
 	mkdir -p output
 	cp -f output.dat ./output
 	cd ./output
@@ -187,4 +182,3 @@ fi
 	cd ..
 	make clean
 	rm stat_table.dat output.dat
-#fi
