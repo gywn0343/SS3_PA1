@@ -96,8 +96,8 @@ then
 	cp -f output.dat ..
 	rm *
 	cd ..
-	mkdir -p output
-	cp -f output.dat ./output
+	#mkdir -p output
+	#cp -f output.dat ./output
 	rmdir tmp_dir
 
 elif [ "$1" == "input" ] || [ "$1" == "space" ];
@@ -154,16 +154,16 @@ then
 			cp -f output.dat ..
 			rm *
 			cd ..
-			mkdir -p output
-			cp -f output.dat output
+			#mkdir -p output
+			#cp -f output.dat output
 			rmdir tmp_dir
 		fi
 	done
 fi
 
 
-if [ "$1" == "output" ];
-then
+#if [ "$1" == "output" ];
+#then
 	mkdir -p output
 	cp -f output.dat ./output
 	cd ./output
@@ -183,6 +183,8 @@ then
 		done < output.dat
 		echo -e $x' \t'$cnt >> stat_table.dat
 	done
-	rm output.dat
+	#rm output.dat
 	cd ..
-fi
+	make clean
+	rm stat_table.dat output.dat
+#fi
